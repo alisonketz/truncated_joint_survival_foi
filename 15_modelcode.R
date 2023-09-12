@@ -829,45 +829,45 @@ modelcode <- nimbleCode({
   #### Overall Survival Susceptibles
   ###################################################
 
-  sn_sus[1:n_sex, 1:n_agef, 1:n_year] <- calc_surv_aah(
-      nT_age = nT_age_surv,
-      nT_period_overall = nT_period_overall,
-      nT_age_short_f = nT_age_short_f,
-      nT_age_short_m = nT_age_short_m,
-      nT_age_surv_aah_f = nT_age_surv_aah_f,
-      nT_age_surv_aah_m = nT_age_surv_aah_m,
-      beta0 = beta0_survival_sus,
-      beta_male = beta_male,
-      age_effect = age_effect_survival[1:nT_age_surv],
-      period_effect = period_effect_survival[(nT_period_prestudy_ext + 1):
-                                              nT_period_overall_ext],
-      yr_start = yr_start[1:n_year],
-      yr_end = yr_end[1:n_year],
-      n_year = n_year,
-      n_agef = n_agef,
-      n_agem = n_agem)
+  # sn_sus[1:n_sex, 1:n_agef, 1:n_year] <- calc_surv_aah(
+  #     nT_age = nT_age_surv,
+  #     nT_period_overall = nT_period_overall,
+  #     nT_age_short_f = nT_age_short_f,
+  #     nT_age_short_m = nT_age_short_m,
+  #     nT_age_surv_aah_f = nT_age_surv_aah_f,
+  #     nT_age_surv_aah_m = nT_age_surv_aah_m,
+  #     beta0 = beta0_survival_sus,
+  #     beta_male = beta_male,
+  #     age_effect = age_effect_survival[1:nT_age_surv],
+  #     period_effect = period_effect_survival[(nT_period_prestudy_ext + 1):
+  #                                             nT_period_overall_ext],
+  #     yr_start = yr_start[1:n_year],
+  #     yr_end = yr_end[1:n_year],
+  #     n_year = n_year,
+  #     n_agef = n_agef,
+  #     n_agem = n_agem)
 
   ###################################################
   #### Overall Survival CWD Infected
   ###################################################
 
-  sn_inf[1:n_sex, 1:n_agef, 1:n_year] <- calc_surv_aah(
-      nT_age = nT_age_surv,
-      nT_period_overall = nT_period_overall,
-      nT_age_short_f = nT_age_short_f,
-      nT_age_short_m = nT_age_short_m,
-      nT_age_surv_aah_f = nT_age_surv_aah_f,
-      nT_age_surv_aah_m = nT_age_surv_aah_m,
-      beta0 = beta0_survival_inf,
-      beta_male = beta_male,
-      age_effect = age_effect_survival[1:nT_age_surv],
-      period_effect = period_effect_survival[(nT_period_prestudy_ext + 1):
-                                              nT_period_overall_ext],
-      yr_start = yr_start[1:n_year],
-      yr_end = yr_end[1:n_year],
-      n_year = n_year,
-      n_agef = n_agef,
-      n_agem = n_agem)
+  # sn_inf[1:n_sex, 1:n_agef, 1:n_year] <- calc_surv_aah(
+  #     nT_age = nT_age_surv,
+  #     nT_period_overall = nT_period_overall,
+  #     nT_age_short_f = nT_age_short_f,
+  #     nT_age_short_m = nT_age_short_m,
+  #     nT_age_surv_aah_f = nT_age_surv_aah_f,
+  #     nT_age_surv_aah_m = nT_age_surv_aah_m,
+  #     beta0 = beta0_survival_inf,
+  #     beta_male = beta_male,
+  #     age_effect = age_effect_survival[1:nT_age_surv],
+  #     period_effect = period_effect_survival[(nT_period_prestudy_ext + 1):
+  #                                             nT_period_overall_ext],
+  #     yr_start = yr_start[1:n_year],
+  #     yr_end = yr_end[1:n_year],
+  #     n_year = n_year,
+  #     n_agef = n_agef,
+  #     n_agem = n_agem)
 
   # ###################################################
   # #### Hunting Survival Susceptibles

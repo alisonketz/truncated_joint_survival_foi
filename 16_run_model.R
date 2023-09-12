@@ -102,7 +102,7 @@ nimData <- list(
 ### Constants for MCMC
 #######################################
 
-nimConsts <- list(n_year = n_year,
+nimConsts <- list(n_year = 5,
     n_year_precollar = n_year_precollar,
     n_year_precollar_ext = n_year_precollar_ext,
     n_year_prestudy_ext = n_year_prestudy_ext,
@@ -346,7 +346,7 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
-reps <- 1000
+reps <- 100
 bin <- 0 # reps*.5
 n_chains <- 1
 
