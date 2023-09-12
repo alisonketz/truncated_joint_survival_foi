@@ -844,7 +844,8 @@ d_mort$pc7 <- p_cause_obs[, 7]
 ###
 ###################################################
 
-study_origin <- "1985-05-15"
+#  study_origin <- "1985-05-15"
+study_origin <-  "2017-01-08"
 df_cap <- df_cap[order(df_cap$date_cap),]
 df_cap$eweek <- ceiling(interval(study_origin,df_cap$date_cap) / weeks(1))
 df_cap$emonth <- ceiling(interval(study_origin,df_cap$date_cap) / months(1))
@@ -910,8 +911,8 @@ d_mort$rmonth <- d_mort$smonth - 1
 #########################################################################
 
 d_cens$year <- year(d_cens$censordate_use)
-d_cens$rweek <- ceiling(interval(study_origin,d_cens$censordate_use) / weeks(1))
-d_cens$rmonth <- ceiling(interval(study_origin,d_cens$censordate_use) / months(1))
+d_cens$rweek <- ceiling(interval(study_origin, d_cens$censordate_use) / weeks(1))
+d_cens$rmonth <- ceiling(interval(study_origin, d_cens$censordate_use) / months(1))
 
 # d_cens$rweek <- week(d_cens$censordate_use) - start_week + 1
 # d_cens$rmonth <- month(d_cens$censordate_use) - start_month + 1

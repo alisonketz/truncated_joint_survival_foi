@@ -9,7 +9,7 @@
 
 rm(list = ls())
 
-setwd("~/Documents/ipm/cwd_ipm_weekly_ew")
+setwd("~/Documents/ipm/truncated_joint_survival_foi")
 
 library(viridis)
 library(RColorBrewer)
@@ -98,9 +98,10 @@ source("12_prelim_aah.R")
 ### Likelihoods
 ###########################################################
 
-# source("13_distributions_check.R")
-source("13_distributions.R")
+source("13_distributions_check.R")
+# source("13_distributions.R")
 # source("13_distributions_hunt.R")
+source("13_distributions_trunc.R")
 
 ###########################################################
 ### Functions for Efficient Calculations

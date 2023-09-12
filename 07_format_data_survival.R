@@ -256,9 +256,9 @@ nrow(d_surv[which(is.na(d_surv[,2])),])
 nrow(df_cap) - (nrow(d_cens) + nrow(d_mort))
 
 #Right censor these
-d_surv[which(is.na(d_surv[, 2])), 2] <- nT_period_overall_ext
-d_surv$rmonth[which(d_surv$rmonth == 0)] <- nT_period_overall_ext_monthly
-d_surv$smonth[which(d_surv$smonth == 0)] <- nT_period_overall_ext_monthly
+d_surv[which(is.na(d_surv[, 2])), 2] <- nT_period_collar#nT_period_overall#nT_period_overall_ext
+d_surv$rmonth[which(d_surv$rmonth == 0)] <- nT_period_collar_monthly#nT_period_overall_ext_monthly
+d_surv$smonth[which(d_surv$smonth == 0)] <- nT_period_collar_monthly#nT_period_overall_ext_monthly
 
 ###
 ### converting to a data.frame
@@ -318,8 +318,12 @@ n_mort <- dim(d_mort)[1]
 n_cens <- dim(d_cens)[1]
 
 #fixing fast right censored individuals
+changeit <- which(d_surv$right_period_r - d_surv$left_period_e < 1 & d_surv$censored == 1)
+
+
 d_surv$right_age_r[which(d_surv$right_period_r - d_surv$left_period_e < 1 & d_surv$censored == 1)] <- 
   d_surv$right_age_r[which(d_surv$right_period_r - d_surv$left_period_e < 1 & d_surv$censored == 1)] + 1
+
 d_surv$right_period_r[which(d_surv$right_period_r - d_surv$left_period_e < 1 & d_surv$censored == 1)] <- 
   d_surv$right_period_r[which(d_surv$right_period_r - d_surv$left_period_e < 1 & d_surv$censored == 1)] + 1
 
@@ -378,6 +382,12 @@ low_remove_fast_cens <- c(5052, 6400, 6081, 5257, 7113, 7787)
 
 d_surv <- d_surv[!(d_surv$lowtag %in% low_remove_fast_cens), ]
 n_surv <- nrow(d_surv)
+
+##################################################
+### fixing the deer that have left_period_e == 0
+#################################################
+
+df_cap[df_cap$lowtag %in% d_surv$lowtag[which(d_surv$left_period_e==0)],]
 
 ##########################################################################
 ###
