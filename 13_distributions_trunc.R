@@ -4,18 +4,18 @@
 ###
 #######################################################################
 
-# d_fit_sus_cens_posttest
-# d_fit_sus_cens_postno
-# d_fit_sus_mort_posttest
-# d_fit_sus_mort_postno
-# d_fit_icap_cens
-# d_fit_icap_mort
-# d_fit_rec_neg_mort
-# d_fit_rec_neg_cens
-# d_fit_rec_pos_mort
-# d_fit_rec_pos_cens
-# d_fit_idead
-# d_fit_endlive
+# d_fit_sus_cens_posttest 2
+# d_fit_sus_cens_postno/d_fit_endlive 4
+# d_fit_sus_mort_posttest 6
+# d_fit_sus_mort_postno 8
+# d_fit_icap_cens 10
+# d_fit_icap_mort 12
+# d_fit_rec_neg_cens_posttest 14
+# d_fit_rec_neg_cens_postno 16
+# d_fit_rec_neg_mort 18
+# d_fit_rec_pos_cens 20
+# d_fit_rec_pos_mort 22
+# d_fit_idead 24
 
 #######################################################################
 ###
@@ -1871,20 +1871,22 @@ dNegCapPosMort <- nimble::nimbleFunction(
             #######################################
             ### calculating the joint likelihood
             #######################################
+            lik_temp <- lik_temp +
+                        (1 - exp(-lam_foi[e[i]])) *
+                        exp(-sum(lam_inf[e[i]:(r[i] - 1)]))
 
-            for (k in (e[i]):(s[i] - 1)) {
-                if (k == e[i]) {
-                    lik_temp <- lik_temp +
-                                (1 - exp(-lam_foi[k])) *
-                                exp(-sum(lam_inf[(k):(r[i] - 1)]))
-                } else {
+            for (k in (e[i] + 1):(r[i] - 1)) {
                     lik_temp <- lik_temp +
                                 (1 - exp(-lam_foi[k])) *
                                 exp(-sum(lam_inf[(k):(r[i] - 1)])) *
-                                exp(-sum(lam_sus[e[i]:(k - 1)])) * 
-                                exp(-sum(-lam_inf[e[i]:(k - 1)]))
-                }
+                                exp(-sum(lam_sus[e[i]:(k - 1)])) *
+                                exp(-sum(lam_foi[e[i]:(k - 1)]))
             }
+            lik_temp <- lik_temp +
+                        (1 - exp(-lam_foi[s[i] - 1])) *
+                        exp(-sum(lam_sus[e[i]:((s[i] - 1) - 1)])) *
+                        exp(-sum(lam_foi[e[i]:((s[i] - 1) - 1)]))
+
             sumllik <- sumllik +
                        log(1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)]))) +
                        log(lik_temp)

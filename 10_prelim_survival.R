@@ -193,32 +193,32 @@ decconvex=function(x,t)
 ### Caculating the basis expansion CONVEX
 ##############################################################
 
-# quant_age <- .2
-# knots_age <- c(1, round(quantile(d_surv$right_age_r,
-#                        c(seq(quant_age, .99, by = quant_age),
-#                        .99))))
-# knots_age <- unique(knots_age)
-# delta_i <- convex(1:nT_age_surv, knots_age, pred.new = FALSE)
-# delta <- t(rbind(delta_i$sigma - 
-#                 t(delta_i$x.mat %*%
-#                 delta_i$center.vector)))
-# delta <- delta / max(delta)
-# Z_age <- delta
-# nknots_age <- dim(Z_age)[2]
-
-##############################################################
-### Caculating the basis expansion CONVEX DECREASING
-##############################################################
-
 quant_age <- .2
 knots_age <- c(1, round(quantile(d_surv$right_age_r,
                        c(seq(quant_age, .99, by = quant_age),
                        .99))))
 knots_age <- unique(knots_age)
-delta_i <- decconvex(1:nT_age_surv, knots_age)
-delta <- t(delta_i$sigma - delta_i$center.vector)
-Z_age <- delta / max(delta)
+delta_i <- convex(1:nT_age_surv, knots_age, pred.new = FALSE)
+delta <- t(rbind(delta_i$sigma - 
+                t(delta_i$x.mat %*%
+                delta_i$center.vector)))
+delta <- delta / max(delta)
+Z_age <- delta
 nknots_age <- dim(Z_age)[2]
+
+##############################################################
+### Caculating the basis expansion CONVEX DECREASING
+##############################################################
+
+# quant_age <- .2
+# knots_age <- c(1, round(quantile(d_surv$right_age_r,
+#                        c(seq(quant_age, .99, by = quant_age),
+#                        .99))))
+# knots_age <- unique(knots_age)
+# delta_i <- decconvex(1:nT_age_surv, knots_age)
+# delta <- t(delta_i$sigma - delta_i$center.vector)
+# Z_age <- delta / max(delta)
+# nknots_age <- dim(Z_age)[2]
 
 
 # #############################################################

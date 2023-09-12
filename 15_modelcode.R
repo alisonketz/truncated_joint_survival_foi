@@ -547,7 +547,7 @@ modelcode <- nimbleCode({
   ###
   ###   d_fit_rec_neg_mort
   ###
-  ###   Overleaf Equation (16)
+  ###   Overleaf Equation (18)
   ###
   #######################################################################
 
