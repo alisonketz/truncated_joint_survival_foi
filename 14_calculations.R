@@ -905,3 +905,50 @@ assign("set_period_effects_ave", set_period_effects_ave, envir = .GlobalEnv)
 
 # length(nT_period_prestudy_ext:nT_period_overall_ext)
 # nT_period_precollar_ext:nT_period_overall_ext
+
+
+################################################################
+###
+### Function for calculating kernel convolution basis expansion
+### For period effects
+###
+#################################################################
+
+kernel_conv <- nimbleFunction(
+  run = function(nT = double(0),
+                 Z = double(2),
+                 stauk = double(0),
+                 nconst = double(0),
+                 tauk = double(0),
+                 nknots = double(0),
+                 alphau = double(1)
+  ){
+    temp <- nimMatrix(value = 0, nrow = nT, ncol = nknots)
+    temp1 <- nimMatrix(value = 0, nrow = nT, ncol = nknots)
+    temp2 <- nimNumeric(nknots)
+    KA <- nimNumeric(nT)
+
+    for (i in 1:nT) {
+      for (j in 1:nknots) {
+        temp1[i, j] <- stauk * nconst * exp(-0.5 * Z[i, j]^2 * tauk)
+      }
+    }
+
+    for (j in 1:nknots) {
+      temp2[j] <- sum(temp1[1:nT, j])
+    }
+
+    for (i in 1:nT) {
+      for (j in 1:nknots) {
+        temp[i, j] <- (temp1[i, j] / temp2[j]) * alphau[j]
+      }
+      KA[i] <- sum(temp[i, 1:nknots])
+    }
+    muKA <- mean(KA[1:nT])
+    KA[1:nT] <- KA[1:nT] - muKA
+
+    returnType(double(1))
+    return(KA[1:nT])
+  })
+
+Ckernel_conv <- compileNimble(kernel_conv)

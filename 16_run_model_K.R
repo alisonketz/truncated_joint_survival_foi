@@ -179,7 +179,8 @@ nimConsts <- list(
     # Z_foi_spline = Z_foi_spline,
     # nknots_foi_spline = nknots_foi_spline,
     Z_collar_gun = Z_collar_gun,
-    Z_collar_ng = Z_collar_ng
+    Z_collar_ng = Z_collar_ng,
+    nconst = 1 / sqrt(2 * pi)
 )
 
 
@@ -196,10 +197,14 @@ initsFun <- function()list(beta_male = rnorm(1, -.2, .01),
     inf_mix = 1,
     ln_b_age_survival = rnorm(nknots_age) * 10^-4,
     tau_age_survival = runif(1, .1, 1),
-    b_period_survival = rnorm(nknots_period) * 10^-4,
-    tau_period_survival = runif(1, .1, 1),
+    # b_period_survival = rnorm(nknots_period) * 10^-4,
+    # tau_period_survival = runif(1, .1, 1),
     beta_harvest_gun = rnorm(1, 0, sd = 1),
     beta_harvest_ng = rnorm(1, 0, sd = 1),
+    mix_survival = 1,
+    ln_sk_period = runif(1, .1, 1),
+    sda_period = runif(1, .1, 1),
+    alpha_period = rnorm(nknots_period, 0, 1),
     # tau_period_precollar = rgamma(1, 1, 1),
     # period_annual_survival = rnorm(n_year_precollar + 1, 0, .1),
     # period_int_survival = rnorm(1, 0, .1),

@@ -6,7 +6,6 @@
 
 # source("summarize.R")
 # load("mcmcout.Rdata")
-load("results/mcmcout_B.Rdata")
 # load("runtime.Rdata")
 # out <- mcmc.list(mcmcout)
 # fit_sum <- summarize(out)
@@ -380,8 +379,6 @@ period_effect_plot
 ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effect_plot)
 
 
-
-
 ##################################################
 ###
 ### save mcmcout 
@@ -402,10 +399,13 @@ save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
 
 
 
+load("results/mcmcout_B.Rdata")
 
-
-
-
+gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
+# gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
 
 
 

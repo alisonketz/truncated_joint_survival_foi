@@ -90,7 +90,8 @@ source("09_format_data_cause.R")
 ### Setup consts etc for running the model
 ###########################################################
 
-source("10_prelim_survival.R")
+# source("10_prelim_survival.R")
+source("10_prelim_survival_K.R")
 source("11_prelim_foi.R")
 source("12_prelim_aah.R")
 
@@ -113,7 +114,8 @@ source("14_calculations.R")
 ### Run model
 ###########################################################
 
-source("15_modelcode.R")
+# source("15_modelcode.R")
+source("15_modelcode_K.R")
 
 ###########################################################
 ### Run model
