@@ -6,52 +6,48 @@
 
 # source("summarize.R")
 # load("mcmcout.Rdata")
+load("results/mcmcout_B.Rdata")
 # load("runtime.Rdata")
 # out <- mcmc.list(mcmcout)
 # fit_sum <- summarize(out)
 
-fit_sum <- mcmcout$summary
+# fit_sum <- mcmcout$summary
+fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "A"
+modelid <- "B"
 
 #############################
 ### Saving Model Description
 #############################
-# sink(paste0("figures/", modelid, "/model_description_", modelid, ".txt"))
-# cat("Model description specifics:\n")
-# cat("niter:  ",reps,"\n")
-# cat("burnin:  ",bin,"\n")
-# cat("n_chains:  ",n_chains,"\n")
-# cat("Model Variation:\n")
-# cat("allowing beta0_survival_inf and beta0_Survival_sus to be estimated with parameter expansion \n")
-# cat("includes aging data aah likelihoods\n")
-# cat("removed population model\n")
-# cat("removed fecundity model \n")
-# cat("no cause-specific model \n")
-# cat("no FOI period effects\n")
-# cat("includes survival period effects\n")
-# # cat("collar only survival period effects, no precollar period effects survival, additive effect of harvest season, time varying step fun\n")
-# cat("includes survival age effects cgam convex \n\n")
-# cat("runtime:  ", runtime, "\n")
-# cat("Summary Stats:  \n")
-# print(fit_sum)
-# sink()
+sink(paste0("figures/", modelid, "/model_description_", modelid, ".txt"))
+cat("Model description specifics:\n")
+cat("niter:  ",reps,"\n")
+cat("burnin:  ",bin,"\n")
+cat("n_chains:  ",n_chains,"\n")
+cat("Model Variation:\n")
+cat("allowing beta0_survival_inf and beta0_Survival_sus to be estimated with parameter expansion \n")
+cat("includes aging data aah likelihoods\n")
+cat("removed population model\n")
+cat("removed fecundity model \n")
+cat("no cause-specific model \n")
+cat("no FOI period effects\n")
+cat("includes survival period effects\n")
+cat("includes survival age effects cgam convex \n\n")
+cat("runtime:  ", runtime, "\n")
+cat("Summary Stats:  \n")
+print(fit_sum)
+sink()
 
 #############################
 ### from single run
 #############################
 
-
 pdf(paste0("figures/",modelid,"/traceplots_",format(Sys.time(),"%y%m%d%m%s"),"_",modelid,".pdf"))
 traceplot(out[, "beta_male"], ylab = "beta_male")
 traceplot(out[, "tau_age_foi_female"], ylab = "tau_age_foi_female")
 traceplot(out[, "tau_age_foi_male"], ylab = "tau_age_foi_male")
-traceplot(out[, "m_age_foi[1]"], ylab = "m_age_foi[1]")
-traceplot(out[, "m_age_foi[2]"], ylab = "m_age_foi[2]")
 traceplot(out[, "m_age_foi[3]"], ylab = "m_age_foi[3]")
-traceplot(out[, "f_age_foi[1]"], ylab = "f_age_foi[1]")
-traceplot(out[, "f_age_foi[2]"], ylab = "f_age_foi[2]")
 traceplot(out[, "f_age_foi[3]"], ylab = "f_age_foi[3]")
 traceplot(out[, "space[2]"], ylab = "space[2]")
 # traceplot(out[, "beta0_sus_temp"], ylab = "beta0_sus_temp")
@@ -96,25 +92,21 @@ traceplot(out[, "tau_period_survival"], ylab = "tau_period_survival")
 # traceplot(out[, "tau_pop[2, 2]"], ylab = "tau_pop[2, 2]")
 dev.off()
 
-# png(paste0("figures/",modelid,"/beta0_survival_sus_traceplot_",modelid,".png"))
-# traceplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
-# dev.off()
+png(paste0("figures/",modelid,"/beta0_survival_sus_traceplot_",modelid,".png"))
+traceplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
+dev.off()
 
 png(paste0("figures/",modelid,"/beta0_survival_inf_densityplot_",modelid,".png"))
 densityplot(out[, "beta0_survival_inf"], ylab = "beta0_survival_inf")
 dev.off()
 
-png(paste0("figures/",modelid,"/beta0_survival_sus_densityplot_",modelid,".png"))
-densityplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
+png(paste0("figures/",modelid,"/beta0_survival_sus_traceplot_",modelid,".png"))
+traceplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
 dev.off()
 
-# png(paste0("figures/",modelid,"/beta0_survival_inf_densityplot_",modelid,".png"))
-# densityplot(out[, "beta0_survival_inf"], ylab = "beta0_survival_inf")
-# dev.off()
-
-# png(paste0("figures/",modelid,"/beta0_survival_sus_densityplot_",modelid,".png"))
-# densityplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
-# dev.off()
+png(paste0("figures/",modelid,"/beta0_survival_inf_densityplot_",modelid,".png"))
+densityplot(out[, "beta0_survival_inf"], ylab = "beta0_survival_inf")
+dev.off()
 
 
 # png(paste0("figures/",modelid,"/tau_obs_traceplot_",modelid,".png"))
@@ -156,6 +148,18 @@ dev.off()
 #     traceplot(out[, paste0("b_age_survival[",i,"]")], ylab = paste0("b_age_survival[",i,"]"))
 # }
 # dev.off()
+
+
+
+# pdf(paste0("figures/",modelid,"/traceplot_foi_period_",modelid,".pdf"))
+# for(i in 1:n_year){
+#     traceplot(out[, paste0("f_period_foi[",i,"]")], ylab = paste0("f_period_foi[",i,"]"))
+# }
+# for(i in 1:n_year){
+#     traceplot(out[, paste0("m_period_foi[",i,"]")], ylab = paste0("m_period_foi[",i,"]"))
+# }
+# dev.off()
+
 
 
 #############################
@@ -269,6 +273,53 @@ dev.off()
 ###
 ###############################################
 
+m_foi_ae_indx <- grep("m_age_foi",rownames(fit_sum))[1:n_ageclassm]
+
+age_effect_mean <- fit_sum[m_foi_ae_indx,2]
+age_effect_lower <- fit_sum[m_foi_ae_indx,4]
+age_effect_upper <- fit_sum[m_foi_ae_indx,5]
+
+ageclass <- 1:n_ageclassm
+
+m_foi_out_age_effect <- data.frame(ageclass,age_effect_mean,age_effect_lower,age_effect_upper,sex = rep("male",n_ageclassm))
+
+
+f_foi_ae_indx <- grep("f_age_foi",rownames(fit_sum))[1:n_ageclassf]
+
+age_effect_mean <- fit_sum[f_foi_ae_indx,2]
+age_effect_lower <- fit_sum[f_foi_ae_indx,4]
+age_effect_upper <- fit_sum[f_foi_ae_indx,5]
+
+ageclass <- 1:n_ageclassf
+
+f_foi_out_age_effect <- data.frame(ageclass,age_effect_mean,age_effect_lower,age_effect_upper,sex = rep("female",n_ageclassf))
+
+out_foi_age <- rbind(m_foi_out_age_effect,f_foi_out_age_effect)
+
+
+foi_age_effect_plot <- ggplot(data =out_foi_age,aes(x = ageclass))+
+  facet_wrap(.~sex)+
+  geom_line(aes(x = ageclass,y=age_effect_mean),size=1)+
+  geom_ribbon(aes(ymin=age_effect_lower,ymax=age_effect_upper),alpha=.2,linetype=0)+
+  ggtitle("Age Effect Posterior")+xlab("Age (Years)")+ylab("Effect Size")+
+  theme_bw()#+
+  #scale_x_continuous(breaks = seq(0,nT_age_surv,by=104),labels=seq(0,n_year,by=2))+
+  #scale_color_manual("Year",values = met.brewer("Kandinsky", 2)) +
+  #scale_fill_manual("Year",values = met.brewer("Kandinsky", 2))
+  # theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+foi_age_effect_plot
+
+# ggsave("figures/age_effect_inf_int.pdf",age_effect_plot_inf_int)
+ggsave(paste0("figures/",modelid,"/foi_age_effect_",modelid,".png"),foi_age_effect_plot)
+
+
+###############################################
+###
+### Plots of age effects for mortality hazard
+###
+###############################################
+
 ae_indx <- grep("age_effect",rownames(fit_sum))
 
 age_effect_mean <- fit_sum[ae_indx,2]
@@ -327,6 +378,37 @@ period_effect_plot
 
 # ggsave("figures/period_effect_inf_int.pdf",period_effect_plot_inf_int)
 ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effect_plot)
+
+
+
+
+##################################################
+###
+### save mcmcout 
+###
+###################################################
+
+save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
+
+
+##################################################
+##################################################
+##################################################
+##################################################
+##################################################
+##################################################
+##################################################
+##################################################
+
+
+
+
+
+
+
+
+
+
 
 
 # ##########################################################
