@@ -121,7 +121,8 @@ source("15_modelcode_K.R")
 ### Run model
 ###########################################################
 
-source("16_run_model.R")
+# source("16_run_model.R")
+source("16_run_model_K.R")
 
 # source("17_run_model_par.R")
 # source("17_run_model_par_fun.R")
