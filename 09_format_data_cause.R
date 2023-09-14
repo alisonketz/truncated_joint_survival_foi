@@ -32,15 +32,15 @@ d_fit_hh$gun[d_fit_hh$lowtag %in% low_gun] <- 1
 d_fit_hh$bow[d_fit_hh$lowtag %in% low_bow] <- 1
 
 
-table(d_fit_hh$right_period_s[d_fit_hh$mort_h==1])
+# table(d_fit_hh$right_period_s[d_fit_hh$mort_h==1])
 
 
-d_fit_hh[d_fit_hh$right_period_s == 98,]
-which(Z_cause_gun == 1)
-which(d_fit_hh$gun[d_fit_hh$mort_h==1]==d_fit_hh$bow[d_fit_hh$mort_h==1])
+# d_fit_hh[d_fit_hh$right_period_s == 98,]
+# which(Z_cause_gun == 1)
+# which(d_fit_hh$gun[d_fit_hh$mort_h==1]==d_fit_hh$bow[d_fit_hh$mort_h==1])
 
-d_fit_hh[5,]
-d_mort[d_mort$lowtag==5084,]
+# d_fit_hh[5,]
+# d_mort[d_mort$lowtag==5084,]
 ##############################################
 ###
 ### Read data - hunting season dates
