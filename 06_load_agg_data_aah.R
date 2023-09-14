@@ -4,11 +4,15 @@
 ###
 #####################################################################################
 
+#truncating AAH data to >2016
+df_age_sus <- df_age_sus %>% filter(year>2016)
+df_age_inf <- df_age_inf %>% filter(year>2016)
 
 ### Number of age classes and sex classes
 n_study_area <- 2
 n_year_ext <- 2022 - 1885
-n_year <- 2022 - 1994
+# n_year <- 2022 - 1994
+n_year <- 5
 n_ageclass <- 7
 n_ageclassm <- 6
 n_ageclassf <- 7
@@ -19,41 +23,44 @@ n_sex <- 2
 #structuring classification data to fit into the model
 Cage_sus <- array(NA, c(n_study_area, n_sex, n_ageclassf, n_year))
 for(j in 1:(n_year)) {
-    Cage_sus[1,1,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[1,1,,j] <- df_age_sus$n[df_age_sus$year == (2016 + j) &
                                     df_age_sus$sex == "Female" &
                                     df_age_sus$study_area == "east"]
-    Cage_sus[2,1,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[2,1,,j] <- df_age_sus$n[df_age_sus$year == (2016 + j) &
                                     df_age_sus$sex == "Female" &
                                     df_age_sus$study_area == "west"]
-    Cage_sus[1,2,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[1,2,,j] <- df_age_sus$n[df_age_sus$year == (2016 + j) &
                                     df_age_sus$sex == "Male" &
                                     df_age_sus$study_area == "east"]
-    Cage_sus[2,2,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[2,2,,j] <- df_age_sus$n[df_age_sus$year == (2016 + j) &
                                     df_age_sus$sex == "Male" &
                                     df_age_sus$study_area == "west"]
 }
 # Cage_sus[2,2,,]
 
 #structuring classification data to fit into the model
-n_yr_surveillance <- length(unique(df_age_inf$year))
-Cage_inf <- array(NA,c(n_study_area,n_sex,n_ageclassf,n_yr_surveillance))
-for(j in 1:n_yr_surveillance){
-    Cage_inf[1,1,,j] <- df_age_inf$n[df_age_inf$year == (2001 + j) &
+# n_yr_surveillance <- length(unique(df_age_inf$year))
+# Cage_inf <- array(NA,c(n_study_area,n_sex,n_ageclassf,n_yr_surveillance))
+Cage_inf <- array(NA,c(n_study_area,n_sex,n_ageclassf,n_year))
+
+# for(j in 1:n_yr_surveillance){
+for(j in 1:n_year){
+    Cage_inf[1,1,,j] <- df_age_inf$n[df_age_inf$year == (2016 + j) &
                                     df_age_inf$sex == "Female" &
                                     df_age_inf$study_area == "east"]
-    Cage_inf[2,1,,j] <- df_age_inf$n[df_age_inf$year == (2001 + j) &
+    Cage_inf[2,1,,j] <- df_age_inf$n[df_age_inf$year == (2016 + j) &
                                     df_age_inf$sex == "Female" &
                                     df_age_inf$study_area == "west"]
-    Cage_inf[1,2,,j] <- df_age_inf$n[df_age_inf$year == (2001 + j) &
+    Cage_inf[1,2,,j] <- df_age_inf$n[df_age_inf$year == (2016 + j) &
                                     df_age_inf$sex == "Male" &
                                     df_age_inf$study_area == "east"]
-    Cage_inf[2,2,,j] <- df_age_inf$n[df_age_inf$year == (2001 + j) &
+    Cage_inf[2,2,,j] <- df_age_inf$n[df_age_inf$year == (2016 + j) &
                                     df_age_inf$sex == "Male" &
                                     df_age_inf$study_area == "west"]
 }
-Cage <- Cage_sus
-Cage[, , , 9:28] <- Cage[, , , 9:28] + Cage_inf
-
+# Cage <- Cage_sus
+Cage <- Cage_sus + Cage_inf
+Cage[2,1,,]
 #Aggregating the oldest age class for males into the next oldest age
 Cage[, 2, 6, ] <- Cage[, 2, 6, ] + Cage[, 2, 7,]
 Cage[, 2, 7, ] <- 0
@@ -67,10 +74,10 @@ Cage[, 2, 7, ] <- 0
 ### if not using data by gun/bow types:
 names(df_harv_overall_total)[1] <- "year"
 
-Ototal_east <- df_harv_overall_total[df_harv_overall_total$year > 1993 &
+Ototal_east <- df_harv_overall_total[df_harv_overall_total$year > 2016 &
                                      df_harv_overall_total$study_area == "east",]
 
-Ototal_west <-  df_harv_overall_total[df_harv_overall_total$year > 1993 &
+Ototal_west <-  df_harv_overall_total[df_harv_overall_total$year > 2016 &
                                      df_harv_overall_total$study_area == "west",]
 
 Ototal <- array(NA,c(n_study_area,n_sex,nrow(Ototal_east)))
@@ -130,7 +137,7 @@ fawndoe_df$overall_doe[indx_add] <- fd_older_df$overall_doe
 fawndoe_df$overall_fawn[indx_add] <- fd_older_df$overall_fawn
 fawndoe_df$overall_fd[indx_add] <- fd_older_df$overall_fd
 fawndoe_df <- fawndoe_df[order(fawndoe_df$year), ]
-fawndoe_df <- fawndoe_df[fawndoe_df$year > 1993, ]
+fawndoe_df <- fawndoe_df[fawndoe_df$year > 2016, ]
 
 ####################################################################################
 ###

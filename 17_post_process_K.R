@@ -31,7 +31,7 @@ cat("removed population model\n")
 cat("removed fecundity model \n")
 cat("no cause-specific model \n")
 cat("no FOI period effects\n")
-cat("includes survival period effects\n")
+cat("includes survival period effects kernel convolution\n")
 cat("includes survival age effects cgam convex \n\n")
 cat("runtime:  ", runtime, "\n")
 cat("Summary Stats:  \n")
@@ -57,7 +57,13 @@ traceplot(out[, "beta_male"], ylab = "beta_male")
 traceplot(out[, "beta_harvest_gun"], ylab = "beta_harvest_gun")
 traceplot(out[, "beta_harvest_ng"], ylab = "beta_harvest_ng")
 traceplot(out[, "tau_age_survival"], ylab = "tau_age_survival")
-traceplot(out[, "tau_period_survival"], ylab = "tau_period_survival")
+traceplot(out[, "sdk_period"], ylab = "sdk_period")
+traceplot(out[, "tauk_period"], ylab = "tauk_period")
+traceplot(out[, "stauk_period"], ylab = "stauk_period")
+traceplot(out[, "sda_period"], ylab = "sda_period")
+traceplot(out[, "taua_period"], ylab = "taua_period")
+traceplot(out[, "ratioinf_period"], ylab = "ratioinf_period")
+# traceplot(out[, "tau_period_survival"], ylab = "tau_period_survival")
 # traceplot(out[, "tau_period_precollar"], ylab = "tau_period_precollar")
 # traceplot(out[, "beta0_cause"], ylab = "beta0_cause")
 # traceplot(out[, "beta_cause_gun"], ylab = "beta_cause_gun")
@@ -399,17 +405,20 @@ save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
 
 
 
-load("results/mcmcout_B.Rdata")
+load("results/mcmcout_D.Rdata")
 
 gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
 gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
-# gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
 gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
 gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
 
 
 
-
+hh_low=d_surv$lowtag[d_surv$p4 ==1]
+table(d_surv$right_period_s[d_surv$lowtag %in% hh_low])
+which(Z_collar_gun==1)
+d_fit_season
 
 # ##########################################################
 # #plots from the second iteration of the mcmc
