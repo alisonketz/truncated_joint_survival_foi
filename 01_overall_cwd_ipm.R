@@ -111,23 +111,23 @@ source("13_distributions_trunc.R")
 ### Functions for Efficient Calculations
 ###########################################################
 
-source("14_calculations.R")
+source("14_calculations_trunc.R")
 
 ###########################################################
 ### Run model
 ###########################################################
 
 # source("15_modelcode.R")
-# source("15_modelcode_K.R")
-source("15_modelcode_K_hh.R")
+source("15_modelcode_K.R")
+# source("15_modelcode_K_hh.R")
 
 ###########################################################
 ### Run model
 ###########################################################
 
 # source("16_run_model.R")
-# source("16_run_model_K.R")
-source("16_run_model_K_hh.R")
+source("16_run_model_K.R")
+# source("16_run_model_K_hh.R")
 
 # source("17_run_model_par.R")
 # source("17_run_model_par_fun.R")

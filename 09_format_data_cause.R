@@ -259,6 +259,24 @@ Z_collar_gun <- Z_cause_gun
 # Z_overall_ng_collar <- Z_overall_ng
 # Z_overall_ng_collar[1:nT_period_precollar_ext] <- 0
 
+######################################
+###
+### calibrate the start of collar to
+### start of aah pop model annual
+### timeline (i.e. jan2017 vs may 2017)
+###
+######################################
+
+study_origin
+pop_study_origin  <- "2017-05-15"
+
+pop_study_start <- ceiling(interval(study_origin,pop_study_origin) / weeks(1))
+pop_study_start #begin to calculate annual survival from the 19th week of the collar study
+d_fit_season_pop <- d_fit_season + pop_study_start
+d_fit_season_pop$year  <- d_fit_season$year
+nT_age_surv <- max(d_surv$right_age_s, na.rm = TRUE) - 1
+yr_start_age <- seq(1,nT_age_surv,by = 52)
+
 ################################################################
 ###
 ### preliminaries for hunter harvest Z at a monthly time step

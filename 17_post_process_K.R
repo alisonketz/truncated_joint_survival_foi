@@ -14,7 +14,7 @@
 fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "J"
+modelid <- "L"
 
 #############################
 ### Saving Model Description
@@ -364,7 +364,7 @@ ggsave(paste0("figures/",modelid,"/age_effect_",modelid,".png"),age_effect_plot)
 ###############################################
 ###############################################
 
-te_indx <- grep("period_effect",rownames(fit_sum))#[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
+te_indx <- grep("period_effect_surv",rownames(fit_sum))#[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
 
 period_effect_mean <- fit_sum[te_indx,1] 
 period_effect_lower <- fit_sum[te_indx,4] 
@@ -409,22 +409,215 @@ save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
 ##################################################
 ##################################################
 
-
+modelid <- "I"
 
 load(paste0("results/mcmcout_",modelid,".Rdata"))
 
-gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
-gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
-gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
-gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
-gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
+# fit_sum <- mcmcout$summary
+fit_sum <- mcmcout$summary$all.chains
+out <- mcmcout$samples
+
+# gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
+# gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
+# gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
+# gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
+# gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
+
+##########################################################
+#plots of annual survival
+##########################################################
+
+age_effect_survival <- do.call(rbind,out[,grep("age_effect",rownames(fit_sum))])
+period_effect_survival <- do.call(rbind,out[,grep("period_effect_surv",rownames(fit_sum))])
+beta0_survival_sus <- do.call(c,out[,grep("beta0_survival_sus",rownames(fit_sum))])
+beta0_survival_inf <- do.call(c,out[,grep("beta0_survival_inf",rownames(fit_sum))])
+beta_male<- do.call(c,out[,grep("beta_male",rownames(fit_sum))])
+
+tot_iter <- nrow(age_effect_survival)
+sn_sus_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
+
+  ##sex,age,year
+for (k in 1:tot_iter) {
+  sn_sus_samples[k,,,] <- calc_surv_aah(
+      nT_age = nT_age_surv,
+      nT_period = nT_period_collar,
+      nT_age_short_f = nT_age_short_f,
+      nT_age_short_m = nT_age_short_m,
+      nT_age_surv_aah_f = nT_age_surv_aah_f,
+      nT_age_surv_aah_m = nT_age_surv_aah_m,
+      beta0 = beta0_survival_sus[k],
+      beta_male = beta_male[k],
+      age_effect = age_effect_survival[k,],
+      period_effect = period_effect_survival[k,],
+	    yr_start_age = yr_start_age,
+      yr_start_pop = d_fit_season_pop$yr_start,
+      n_year = n_year,
+      n_agef = n_agef,
+      n_agem = n_agem)
+}
+save(sn_sus_samples, file = "results/sn_sus_samples_I.Rdata")
+sn_sus_out <- apply(sn_sus_samples,2:4,mean,na.rm=TRUE)
+save(sn_sus_out, file = "results/sn_sus_out_I.Rdata")
+sn_sus_out[1,,]
+
+sn_inf_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
+  ##sex,age,year
+for (k in 1:tot_iter) {
+  sn_inf_samples[k,,,] <- calc_surv_aah(
+      nT_age = nT_age_surv,
+      nT_period = nT_period_collar,
+      nT_age_short_f = nT_age_short_f,
+      nT_age_short_m = nT_age_short_m,
+      nT_age_surv_aah_f = nT_age_surv_aah_f,
+      nT_age_surv_aah_m = nT_age_surv_aah_m,
+      beta0 = beta0_survival_inf[k],
+      beta_male = beta_male[k],
+      age_effect = age_effect_survival[k,],
+      period_effect = period_effect_survival[k,],
+	    yr_start_age = yr_start_age,
+      yr_start_pop = d_fit_season_pop$yr_start,
+      n_year = n_year,
+      n_agef = n_agef,
+      n_agem = n_agem)
+}
+save(sn_inf_samples, file = "results/sn_inf_samples_I.Rdata")
+sn_inf_out <- apply(sn_inf_samples,2:4,mean,na.rm=TRUE)
+save(sn_inf_out, file = "results/sn_inf_out_I.Rdata")
+sn_inf_out_sd <- apply(sn_inf_samples,2:4,sd,na.rm=TRUE)
+sn_sus_out_sd <- apply(sn_sus_samples,2:4,sd,na.rm=TRUE)
+
+
+value=c(sn_sus_out)
+df_sn_sus_out <- data.frame(
+  survival=c(sn_sus_out),
+  survival_sd = c(sn_sus_out_sd),
+  sex = rep(c("Female","Male"),length(value)/2),
+  age = rep(1:10,each = 2,length(value)/20),
+  year= rep(2017:2021,each=length(value)/5)
+)
+df_sn_sus_out$cwd_status <- "Susceptible"
+
+
+value=c(sn_inf_out)
+df_sn_inf_out <- data.frame(
+  survival=c(sn_inf_out),
+  survival_sd = c(sn_inf_out_sd),
+  sex = rep(c("Female","Male"),length(value)/2),
+  age = rep(1:10,each = 2,length(value)/20),
+  year= rep(2017:2021,each=length(value)/5)
+)
+df_sn_inf_out$cwd_status <- "Infected"
+
+df_sn_out <- rbind(df_sn_sus_out,df_sn_inf_out)
+df_sn_out$age <- as.factor(df_sn_out$age)
+levels(df_sn_out$age) <- c("Fawn",as.character(1:8),"9+")
+df_sn_sus_out$age <- as.factor(df_sn_sus_out$age)
+levels(df_sn_sus_out$age) <- c("Fawn",as.character(1:8),"9+")
+df_sn_inf_out$age <- as.factor(df_sn_inf_out$age)
+levels(df_sn_inf_out$age) <- c("Fawn",as.character(1:8),"9+")
+
+mypal <- met.brewer(name="Renoir", n=10, type="discrete")
+
+
+out_plot_inf <- ggplot(data=df_sn_inf_out)+
+                geom_point(aes(x= year,y=survival,color=age),size = 4,alpha =.8)+
+                facet_wrap(~sex)+
+                theme_bw()+
+                ylab("Annual Survival Probability May 15-May14 the following year")+
+                xlab("Year")+
+                scale_color_manual("Age",values=mypal)+
+                theme(axis.text = element_text(size = 14),
+                axis.title = element_text(size = 16),
+                strip.text = element_text(size = 16),
+                legend.title = element_text(size = 16),
+                legend.text = element_text(size = 14))
+
+out_plot_sus <- ggplot(data=df_sn_sus_out) +
+                geom_point(aes(x= year,y=survival,color = age),size = 4,alpha = .8) +
+                facet_wrap(~sex) +
+                theme_bw()+
+                ylab("Annual Survival Probability May 15-May14 the following year")+
+                xlab("Year")+
+                scale_color_manual("Age",values=mypal)+
+                theme(axis.text = element_text(size = 14),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14)
+                )
+
+ggsave(paste0("figures/",modelid,"/annual_survival_plot_sus","_",modelid,".png"),out_plot_sus)
+ggsave(paste0("figures/",modelid,"/annual_survival_plot_inf","_",modelid,".png"),out_plot_inf)
+
+############################################
+### Probability of susceptibles surviving non-gun harvest
+### Probability of susceptibles surviving gun harvest
+############################################
+
+    mu_old_age_effect_f <- mean(age_effect[(nT_age_short_f + 1):nT_age])
+    mu_old_age_effect_m <- mean(age_effect[(nT_age_short_m + 1):nT_age])
+
+	############################################
+	# Calculate hazards
+	############################################
+
+    UCH <- nimArray(NA, c(2, nT_age_surv_aah_f, nT_period))
+    s_aah <- nimArray(NA, c(2, n_agef, n_year))
+
+    ### Females
+    for(j in 1:nT_period) {
+        for(i in 1:nT_age_short_f) {
+            UCH[1, i, j] <- exp(beta0 +
+                                age_effect[i] +
+                                period_effect[j])
+        }
+        for(i in (nT_age_short_f + 1):(nT_age_surv_aah_f)) {
+            UCH[1, i, j] <- exp(beta0 +
+                                mu_old_age_effect_f +
+                                period_effect[j])
+        }
+    }
+
+    ### Males
+    for(j in 1:nT_period) {
+        for(i in 1:nT_age_short_m) {
+            UCH[2, i, j] <- exp(beta0 +
+                                beta_male +
+                                age_effect[i] +
+                                period_effect[j])
+        }
+        for(i in (nT_age_short_m + 1):(nT_age_surv_aah_m)) {
+            UCH[2, i, j] <- exp(beta0 +
+                                beta_male +
+                                mu_old_age_effect_m +
+                                period_effect[j])
+        }
+    }
+
+    ############################################
+    # calculate survival from cummulative haz
+    ############################################
+    for (t in 1:n_year) {
+        for (a in 1:n_agef) {
+            s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
+                               yr_start_age[a]:(yr_start_age[a] + 51),
+                               yr_start_pop[t]:(yr_start_pop[t] + 51)])))
+        }
+        for(a in 1:n_agem) {
+            s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
+                               yr_start_age[a]:(yr_start_age[a] + 51),
+                               yr_start_pop[t]:(yr_start_pop[t] + 51)])))
+        }
+    }
+
+
+# Probability of infecteds surviving non-gun harvest
+# Probability of infecteds surviving gun harvest
 
 
 
-hh_low=d_surv$lowtag[d_surv$p4 ==1]
-table(d_surv$right_period_s[d_surv$lowtag %in% hh_low])
-which(Z_collar_gun==1)
-d_fit_season
+
+
 
 # ##########################################################
 # #plots from the second iteration of the mcmc
