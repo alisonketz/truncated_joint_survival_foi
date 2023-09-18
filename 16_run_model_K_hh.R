@@ -78,7 +78,12 @@ nimData <- list(
     idead_right_age_r = d_fit_idead$right_age_r,
     idead_right_age_s = d_fit_idead$right_age_s,
     idead_sex = d_fit_idead$sex,
-    idead_age2date = idead_age2date
+    idead_age2date = idead_age2date,
+    y_hunt = 1,
+    y_hunt_teststatus = d_fit_hunt$teststatus,
+    hunt_n_cases = d_fit_hunt$n_cases,
+    hunt_ageweeks = d_fit_hunt$ageweeks,
+    hunt_sex = d_fit_hunt$sex
     # mort_hh = d_fit_hh$mort_h,
     # sex_cause = d_fit_hh$sex,
     # Z_cause_gun = Z_cause_gun,
@@ -165,6 +170,8 @@ nimConsts <- list(
     sect_rec_pos_mort = d_fit_rec_pos_mort$study_area,
     sect_rec_pos_cens = d_fit_rec_pos_cens$study_area,
     sect_idead = d_fit_idead$study_area,
+    sect_hunt_ew = d_fit_hunt$ew,
+    n_fit_hunt = n_fit_hunt,
     # records_cause = records_cause,
     # interval_cause = d_fit_hh$right_period_s - 1,
     # indx_mat_pe_surv = indx_mat_pe_surv,
@@ -179,7 +186,8 @@ nimConsts <- list(
     # Z_foi_spline = Z_foi_spline,
     # nknots_foi_spline = nknots_foi_spline,
     Z_collar_gun = Z_collar_gun,
-    Z_collar_ng = Z_collar_ng
+    Z_collar_ng = Z_collar_ng,
+    nconst = 1 / sqrt(2 * pi)
 )
 
 
@@ -196,10 +204,14 @@ initsFun <- function()list(beta_male = rnorm(1, -.2, .01),
     inf_mix = 1,
     ln_b_age_survival = rnorm(nknots_age) * 10^-4,
     tau_age_survival = runif(1, .1, 1),
-    b_period_survival = rnorm(nknots_period) * 10^-4,
-    tau_period_survival = runif(1, .1, 1),
+    # b_period_survival = rnorm(nknots_period) * 10^-4,
+    # tau_period_survival = runif(1, .1, 1),
     # beta_harvest_gun = rnorm(1, 0, sd = 1),
     # beta_harvest_ng = rnorm(1, 0, sd = 1),
+    mix_survival = 1,
+    ln_sk_period = runif(1, .1, 1),
+    sda_period = runif(1, .1, 1),
+    alpha_period = rnorm(nknots_period, 0, 1),
     # tau_period_precollar = rgamma(1, 1, 1),
     # period_annual_survival = rnorm(n_year_precollar + 1, 0, .1),
     # period_int_survival = rnorm(1, 0, .1),
@@ -289,8 +301,6 @@ parameters <- c(
               # "space_mix",
               "beta0_survival_inf",
               "beta0_survival_sus",
-              # "beta_harvest_gun",
-              # "beta_harvest_ng",
             #   "beta0_sus_temp",
             #   "sus_mix",
             #   "beta0_inf_temp",
@@ -298,10 +308,23 @@ parameters <- c(
               # "tau_age_survival",
               "age_effect_survival",
               "ln_b_age_survival",
-              "b_period_survival",
-              "tau_period_survival",
+              # "b_period_survival",
+              # "tau_period_survival",
+              "mix_survival",
+              "ln_sk_period",
+              "sdk_period",
+              "tauk_period",
+              "stauk_period",
+              "sda_period",
+              "taua_period",
+              "alpha_period",
+              "alphau_period",
+              "ratioinf_period",
+              # "beta_harvest_gun",
+              # "beta_harvest_ng",
               # "tau_period_precollar",
-              "period_effect_surv"
+              "period_effect_surv",
+              "period_effect"
               # "period_effect_survival",
               # "period_int_survival",
               # "beta0_cause",
@@ -338,7 +361,7 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
-reps <- 10000
+reps <- 20000
 bin <- reps * .5
 n_chains <- 3
 

@@ -712,6 +712,29 @@ modelcode <- nimbleCode({
       sect = sect_idead[1:nNegCapPosMort]
       )
 
+
+
+  #######################################################################
+  ###
+  ###   User defined distribution for likelihood for
+  ###   hunter harvest surveillance data
+  ###   
+  #######################################################################
+
+  y_hunt ~ dFOIhunt(
+    y = y_hunt_teststatus[1:n_fit_hunt],
+    n_cases = hunt_n_cases[1:n_fit_hunt],
+    n_samples = n_fit_hunt,
+    a = hunt_ageweeks[1:n_fit_hunt],
+    sex = hunt_sex[1:n_fit_hunt],
+    f_age_foi = f_age_foi[1:n_ageclassf],
+    m_age_foi = m_age_foi[1:n_ageclassm],
+    age_lookup_f = age_lookup_f[1:nT_age_surv],
+    age_lookup_m = age_lookup_m[1:nT_age_surv],
+    space = space[1:2],
+    sect = sect_hunt_ew[1:n_fit_hunt]
+)
+
   #######################################################
   #######################################################
   #######################################################

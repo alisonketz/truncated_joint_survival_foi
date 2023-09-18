@@ -7,14 +7,14 @@
 # source("summarize.R")
 # load("mcmcout.Rdata")
 # load("runtime.Rdata")
-# out <- mcmc.list(mcmcout)
+# out <- mcmc.list(mcmcout1)
 # fit_sum <- summarize(out)
 
 # fit_sum <- mcmcout$summary
 fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "D"
+modelid <- "J"
 
 #############################
 ### Saving Model Description
@@ -36,6 +36,12 @@ cat("includes survival age effects cgam convex \n\n")
 cat("runtime:  ", runtime, "\n")
 cat("Summary Stats:  \n")
 print(fit_sum)
+cat("Gelman diag:")
+print(gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE))
+print(gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE))
+print(gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE))
+print(gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE))
+print(gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE))
 sink()
 
 #############################
@@ -405,7 +411,7 @@ save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
 
 
 
-load("results/mcmcout_D.Rdata")
+load(paste0("results/mcmcout_",modelid,".Rdata"))
 
 gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
 gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)

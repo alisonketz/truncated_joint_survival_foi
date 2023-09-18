@@ -78,7 +78,8 @@ source("07_format_data_survival.R")
 ### Setup collar data for FOI + Survival
 ##########################################################
 
-source("08_format_data_combine_foi_surv.R")
+# source("08_format_data_combine_foi_surv.R")
+source("08_format_data_combine_foi_surv_trunc.R")
 
 ##########################################################
 ### Setup collar data for FOI + Survival
@@ -93,7 +94,9 @@ source("09_format_data_cause.R")
 # source("10_prelim_survival.R")
 source("10_prelim_survival_K.R")
 source("11_prelim_foi.R")
-source("12_prelim_aah.R")
+# source("12_prelim_aah.R")
+source("12_prelim_aah_trunc.R")
+
 
 ###########################################################
 ### Likelihoods
@@ -115,14 +118,16 @@ source("14_calculations.R")
 ###########################################################
 
 # source("15_modelcode.R")
-source("15_modelcode_K.R")
+# source("15_modelcode_K.R")
+source("15_modelcode_K_hh.R")
 
 ###########################################################
 ### Run model
 ###########################################################
 
 # source("16_run_model.R")
-source("16_run_model_K.R")
+# source("16_run_model_K.R")
+source("16_run_model_K_hh.R")
 
 # source("17_run_model_par.R")
 # source("17_run_model_par_fun.R")
@@ -131,4 +136,5 @@ source("16_run_model_K.R")
 ### Post processing
 ###########################################################
 
-source("17_post_process.R")
+# source("17_post_process.R")
+source("17_post_process_K.R")

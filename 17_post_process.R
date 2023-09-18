@@ -14,7 +14,7 @@
 fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "D"
+modelid <- "G"
 
 #############################
 ### Saving Model Description
@@ -31,7 +31,7 @@ cat("removed population model\n")
 cat("removed fecundity model \n")
 cat("no cause-specific model \n")
 cat("no FOI period effects\n")
-cat("includes survival period effects\n")
+cat("includes survival period effects spline\n")
 cat("includes survival age effects cgam convex \n\n")
 cat("runtime:  ", runtime, "\n")
 cat("Summary Stats:  \n")
@@ -399,7 +399,7 @@ save(mcmcout,file=paste0("results/mcmcout_",modelid,".Rdata"))
 
 
 
-load("results/mcmcout_B.Rdata")
+# load("results/mcmcout_B.Rdata")
 
 gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
 gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)

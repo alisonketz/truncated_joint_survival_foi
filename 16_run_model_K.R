@@ -199,8 +199,8 @@ initsFun <- function()list(beta_male = rnorm(1, -.2, .01),
     tau_age_survival = runif(1, .1, 1),
     # b_period_survival = rnorm(nknots_period) * 10^-4,
     # tau_period_survival = runif(1, .1, 1),
-    beta_harvest_gun = rnorm(1, 0, sd = 1),
-    beta_harvest_ng = rnorm(1, 0, sd = 1),
+    # beta_harvest_gun = rnorm(1, 0, sd = 1),
+    # beta_harvest_ng = rnorm(1, 0, sd = 1),
     mix_survival = 1,
     ln_sk_period = runif(1, .1, 1),
     sda_period = runif(1, .1, 1),
@@ -313,10 +313,11 @@ parameters <- c(
               "alpha_period",
               "alphau_period",
               "ratioinf_period",
-              "beta_harvest_gun",
-              "beta_harvest_ng",
+              # "beta_harvest_gun",
+              # "beta_harvest_ng",
               # "tau_period_precollar",
-              "period_effect_surv"
+              "period_effect_surv",
+              "period_effect"
               # "period_effect_survival",
               # "period_int_survival",
               # "beta0_cause",
@@ -353,7 +354,7 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
-reps <- 10000
+reps <- 20000
 bin <- reps * .5
 n_chains <- 3
 

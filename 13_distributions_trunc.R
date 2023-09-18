@@ -16,6 +16,7 @@
 # d_fit_rec_pos_cens 20
 # d_fit_rec_pos_mort 22
 # d_fit_idead 24
+#d_fit_hunt  
 
 #######################################################################
 ###
@@ -765,7 +766,6 @@ dIcapCens <- nimble::nimbleFunction(
                    log = double()) {
         sumllik <- 0 # intialize log-likelihood
         for (i in 1:n_samples) {
-            lam_foi <- 0
             lam_inf <- 0
 
             #############################################
@@ -1003,7 +1003,7 @@ dRecNegCensTest <- nimble::nimbleFunction(
             lam_foi <- 0
             lam_sus <- 0
             # lam_inf <- 0
-            lik_temp <- 0
+            # lik_temp <- 0
 
             #############################################
             # preliminary hazards for the likelihood
@@ -1195,7 +1195,7 @@ dRecNegCensPostNo <- nimble::nimbleFunction(
             lik_temp <- (1 - exp(-lam_foi[dn1[i]])) *
                         exp(-sum(lam_inf[dn1[i]:(r[i] - 1)]))
 
-            for (k in (dn1[i]):(r[i] - 1)) {
+            for (k in (dn1[i] + 1):(r[i] - 1)) {
                 lik_temp <- lik_temp +
                             (1 - exp(-lam_foi[k])) *
                             exp(-sum(lam_sus[dn1[i]:(k - 1)])) *
@@ -1962,4 +1962,287 @@ assign("dNegCapPosMort", dNegCapPosMort, envir = .GlobalEnv)
 #         )
 # (end<- Sys.time()-starttime)
 # test
+
+
+#######################################################################
+###
+###   User defined distribution for likelihood for
+###  harvested deer, revised for multiple deer
+###
+###   d_fit_hunt
+###
+#######################################################################
+
+
+dFOIhunt <- nimble::nimbleFunction( # nolint
+    run = function( # nolint
+                   ### argument type declarations
+                   x = integer(0),
+                   y = double(1),
+                   n_cases = double(1),
+                   n_samples = integer(0), # number of samples in dataset
+                   a = double(1), # age (weeks) at harvest
+                   sex = double(1),
+                   f_age_foi = double(1),
+                   m_age_foi = double(1),
+                   age_lookup_f = double(1),
+                   age_lookup_m = double(1),
+                   space = double(1),
+                   sect = double(1),
+                   log = double(0)) {
+
+        # start the loop through individuals
+        sumllik <- 0
+        for (i in 1:n_samples) {
+
+            # intitialize scalars
+
+            #################################################
+            ### loop over ages and accumulate sums over 1:a-1
+            ### have to loop separately for lam_inf
+            #################################################
+
+            if (sex[i] == 0) { # age loops for females
+                lik_foi <- 0
+                lam_foij <- 0
+                for (j in 1:(a[i] - 1)) {
+                    # sum up foi hazard from 1  to j
+                    lam_foij <- exp(space[sect[i]] +
+                        f_age_foi[age_lookup_f[j]])
+                    # sum up like_temp (no sus hazard when j=1)
+                    lik_foi <- lik_foi + lam_foij 
+                }
+                p <- 1 - exp(-lik_foi)
+                lik_temp <- dbinom(y[i],1,p,log=TRUE)
+            } else { # age loops for males
+                lik_foi <- 0
+                lam_foij <- 0
+                for (j in 1:(a[i] - 1)) {
+                    # sum up foi hazard from 1  to j
+                    lam_foij <- exp(space[sect[i]] +
+                        m_age_foi[age_lookup_f[j]]) 
+                    # sum up like_temp (no sus hazard when j=1)
+                    lik_foi <- lik_foi + lam_foij 
+                }
+                p <- 1 - exp(-lik_foi)
+                lik_temp <- dbinom(y[i],1,p,log=TRUE)
+            } # end if(sex)
+
+            #######################################
+            ### accumulate the joint likelihood
+            #######################################
+            # if(is.na(lik_temp)){stop("ack")}
+            sumllik <- sumllik + lik_temp * n_cases[i]
+        } # end the loop for individual i
+        returnType(double(0))
+        if (log) {
+            return(sumllik)
+        } else {
+            return(exp(sumllik))
+        }
+    }
+)
+
+nimble::registerDistributions(list(
+    dFOIhunt = list(
+        BUGSdist = "dFOIhunt(y,n_cases,n_samples,a,sex,f_age_foi,m_age_foi,age_lookup_f,age_lookup_m,space,sect)",
+        types = c(
+            "value = integer(0)",
+            "y = double(1)",
+            "n_cases = double(1)",
+            "n_samples = integer(0)",
+            "a = double(1)",
+            "sex = double(1)",
+            "f_age_foi = double(1)",
+            "m_age_foi = double(1)",
+            "age_lookup_f = double(1)",
+            "age_lookup_m = double(1)",
+            "space = double(1)",
+            "sect = double(1)",
+            "returnType = double(0)",
+            "log = double(0)"
+        ),
+        discrete = TRUE
+    )
+))
+
+### for a user-defined distribution
+assign("dFOIhunt",
+    dFOIhunt,
+    envir = .GlobalEnv
+)
+# starttime <- Sys.time()
+# test <- dFOIhunt(
+#     x = 1,
+#     y = d_fit_hunt$teststatus,
+#     n_cases = d_fit_hunt$n_cases,
+#     n_samples = nrow(d_fit_hunt),
+#     a = d_fit_hunt$ageweeks,
+#     sex = d_fit_hunt$sex,
+#     f_age_foi = f_age_foi,
+#     m_age_foi = m_age_foi,
+#     age_lookup_f = age_lookup_f,
+#     age_lookup_m = age_lookup_m,
+#     space = c(0, -.55),
+#     sect = d_fit_hunt$ew,
+#     log = TRUE
+# )
+# (end <- Sys.time() - starttime)
+# test
+
+#######################################################################
+###
+###   User defined distribution for likelihood for
+###  harvested deer, revised for multiple deer
+###  the following version includes period effects
+###
+###   d_fit_hunt
+###
+#######################################################################
+
+
+# dFOIhunt <- nimble::nimbleFunction( # nolint
+#     run = function( # nolint
+#                    ### argument type declarations
+#                    x = integer(0),
+#                    y = double(1),
+#                    n_cases = double(1),
+#                    n_samples = integer(0), # number of samples in dataset
+#                    a = double(1), # age (weeks) at harvest
+#                    sex = double(1),
+#                    age2date = double(1),
+#                    f_age_foi = double(1),
+#                    m_age_foi = double(1),
+#                    age_lookup_f = double(1),
+#                    age_lookup_m = double(1),
+#                    period_lookup_foi = double(1),
+#                    f_period_foi = double(1),
+#                    m_period_foi = double(1),
+#                    space = double(1),
+#                    sect = double(1),
+#                    log = double(0)) {
+
+#         # start the loop through individuals
+#         sumllik <- 0
+#         for (i in 1:n_samples) {
+
+#             # intitialize scalars
+
+#             #################################################
+#             ### loop over ages and accumulate sums over 1:a-1
+#             ### have to loop separately for lam_inf
+#             #################################################
+
+#             if (sex[i] == 0) { # age loops for females
+#                 lik_foi <- 0
+#                 lam_foij <- 0
+#                 for (j in 1:(a[i] - 1)) {
+#                     # sum up foi hazard from 1  to j
+#                     lam_foij <- exp(space[sect[i]] +
+#                         f_age_foi[age_lookup_f[j]] +
+#                         f_period_foi[period_lookup_foi[age2date[i] + j]])
+#                     # sum up like_temp (no sus hazard when j=1)
+#                     lik_foi <- lik_foi + lam_foij 
+#                 }
+#                 p <- 1 - exp(-lik_foi)
+#                 lik_temp <- dbinom(y[i],1,p,log=TRUE)
+#             } else { # age loops for males
+#                 lik_foi <- 0
+#                 lam_foij <- 0
+#                 for (j in 1:(a[i] - 1)) {
+#                     # sum up foi hazard from 1  to j
+#                     lam_foij <- exp(space[sect[i]] +
+#                         m_age_foi[age_lookup_f[j]] +
+#                         m_period_foi[period_lookup_foi[age2date[i] + j]])
+#                     # sum up like_temp (no sus hazard when j=1)
+#                     lik_foi <- lik_foi + lam_foij 
+#                 }
+#                 p <- 1 - exp(-lik_foi)
+#                 lik_temp <- dbinom(y[i],1,p,log=TRUE)
+#             } # end if(sex)
+
+#             #######################################
+#             ### accumulate the joint likelihood
+#             #######################################
+#             # if(is.na(lik_temp)){stop("ack")}
+#             sumllik <- sumllik + lik_temp * n_cases[i]
+#         } # end the loop for individual i
+#         returnType(double(0))
+#         if (log) {
+#             return(sumllik)
+#         } else {
+#             return(exp(sumllik))
+#         }
+#     }
+# )
+
+# nimble::registerDistributions(list(
+#     dFOIhunt = list(
+#         BUGSdist = "dFOIhunt(y,n_cases,n_samples,a,sex,age2date,f_age_foi,m_age_foi,age_lookup_f,age_lookup_m,f_period_foi,m_period_foi,period_lookup_foi,space,sect)",
+#         types = c(
+#             "value = integer(0)",
+#             "y = double(1)",
+#             "n_cases = double(1)",
+#             "n_samples = integer(0)",
+#             "a = double(1)",
+#             "sex = double(1)",
+#             "age2date = double(1)",
+#             "f_age_foi = double(1)",
+#             "m_age_foi = double(1)",
+#             "age_lookup_f = double(1)",
+#             "age_lookup_m = double(1)",
+#             "f_period_foi = double(1)",
+#             "m_period_foi = double(1)",
+#             "period_lookup_foi = double(1)",
+#             "space = double(1)",
+#             "sect = double(1)",
+#             "returnType = double(0)",
+#             "log = double(0)"
+#         ),
+#         discrete = TRUE
+#     )
+# ))
+
+# ### for a user-defined distribution
+# assign("dFOIhunt",
+#     dFOIhunt,
+#     envir = .GlobalEnv
+# )
+# # starttime <- Sys.time()
+# # test <- dFOIhunt(
+# #     x = d_fit_hunt$teststatus,
+# #     n_cases = d_fit_hunt$n_cases,
+# #     n_samples = nrow(d_fit_hunt),
+# #     a = d_fit_hunt$ageweeks,
+# #     sex = d_fit_hunt$sex,
+# #     age2date = d_fit_hunt$birthweek - 1,
+# #     f_age_foi = f_age_foi,
+# #     m_age_foi = m_age_foi,
+# #     age_lookup_f = age_lookup_f,
+# #     age_lookup_m = age_lookup_m,
+# #     period_lookup_foi = period_lookup_foi_hunt,
+# #     f_period_foi = f_period_foi,
+# #     m_period_foi = m_period_foi,
+# #     space = c(0, -.55),
+# #     sect = d_fit_hunt$ew,
+# #     log = TRUE
+# # )
+# # (end <- Sys.time() - starttime)
+# # test
+# #     x = d_fit_hunt$teststatus
+# #     n_cases = d_fit_hunt$n_cases
+# #     n_samples = nrow(d_fit_hunt)
+# #     a = d_fit_hunt$ageweeks
+# #     sex = d_fit_hunt$sex
+# #     age2date = d_fit_hunt$birthweek - 1
+# #     f_age_foi = f_age_foi
+# #     m_age_foi = m_age_foi
+# #     age_lookup_f = age_lookup_f
+# #     age_lookup_m = age_lookup_m
+# #     period_lookup_foi = period_lookup_foi
+# #     f_period_foi = f_period_foi
+# #     m_period_foi = m_period_foi
+# #     space = c(0, -.55)
+# #     sect = d_fit_hunt$ew
+
 
