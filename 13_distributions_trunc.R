@@ -69,12 +69,10 @@ dSusCensTest <- nimble::nimbleFunction(
                         exp(space[sect[i]] +
                             f_age_foi[age_lookup_f[j]])
                             # f_period_foi[period_lookup_foi[age2date[i] + j]])
-                   
                     lam_sus <- lam_sus +
                             exp(beta0_sus +
                                 age_effect_surv[j] +
                                 period_effect_surv[age2date[i] + j])
-                    
                 }
             } else { # age loops for males
                 for (j in e[i]:(r[i] - 1)) {
@@ -143,24 +141,24 @@ assign("dSusCensTest", dSusCensTest, envir = .GlobalEnv)
 # starttime <- Sys.time()
 # test <- dSusCensTest(
 #         x = 1,
-# 		n_samples = nrow(d_fit_sus_cens_posttest),
-#         e = d_fit_sus_cens_posttest$left_age_e,
-#         r = d_fit_sus_cens_posttest$right_age_r,
-#         sex = d_fit_sus_cens_posttest$sex,
-#         age2date = sus_cens_posttest_age2date,
-#         beta_male = beta_male,
-#         beta0_sus = beta0_survival_sus,
-#         age_effect_surv = age_effect_survival_test,
-#         period_effect_surv = period_effect_surv,
-#         f_age_foi = f_age_foi,
-#         m_age_foi = m_age_foi,
-#         age_lookup_f = age_lookup_f,
-#         age_lookup_m = age_lookup_m,
-#         # period_lookup_foi = period_lookup_foi,
-#         # f_period_foi = f_period_foi,
-#         # m_period_foi = m_period_foi,
-#         sect = d_fit_sus_cens_posttest$study_area,
-#         space = c(0,-.55),
+		# n_samples = nrow(d_fit_sus_cens_posttest),
+        # e = d_fit_sus_cens_posttest$left_age_e,
+        # r = d_fit_sus_cens_posttest$right_age_r,
+        # sex = d_fit_sus_cens_posttest$sex,
+        # age2date = sus_cens_posttest_age2date,
+        # beta_male = beta_male,
+        # beta0_sus = beta0_survival_sus,
+        # age_effect_surv = age_effect_survival_test,
+        # period_effect_surv = period_effect_surv,
+        # f_age_foi = f_age_foi,
+        # m_age_foi = m_age_foi,
+        # age_lookup_f = age_lookup_f,
+        # age_lookup_m = age_lookup_m,
+        # period_lookup_foi = period_lookup_foi,
+        # f_period_foi = f_period_foi,
+        # m_period_foi = m_period_foi,
+        # sect = d_fit_sus_cens_posttest$study_area,
+        # space = c(0,-.55),
 #         log = TRUE
 #         )
 # (end<- Sys.time()-starttime)
@@ -239,12 +237,13 @@ dSusCensNo <- nimble::nimbleFunction(
                                            (age2date[i] + r[i] - 1)] + beta_male)
             }
 
-            lik_temp <- (1 - exp(lam_foi[e[i]])) * exp(-sum(lam_inf[e[i]:(r[i] - 1)]))
+            lik_temp <- (1 - exp(-lam_foi[e[i]])) *
+                        exp(-sum(lam_inf[e[i]:(r[i] - 1)]))
 
             if ((r[i] - e[i]) > 1) {
                 for(k in (e[i] + 1):(r[i] - 1)) {
                     lik_temp <- lik_temp +
-                                (1 - exp(lam_foi[k])) *
+                                (1 - exp(-lam_foi[k])) *
                                 exp(-sum(lam_inf[k:(r[i] - 1)])) *
                                 exp(-sum(lam_foi[e[i]:(k - 1)])) *
                                 exp(-sum(lam_sus[e[i]:(k - 1)])) 
@@ -305,11 +304,11 @@ assign("dSusCensNo", dSusCensNo, envir = .GlobalEnv)
 # starttime <- Sys.time()
 # test <- dSusCensNo(
 #         x = 1,
-#         n_samples = nrow(d_fit_sus_cens_postno),
-#         e = d_fit_sus_cens_postno$left_age_e,
-#         r = d_fit_sus_cens_postno$right_age_r,
-#         sex = d_fit_sus_cens_postno$sex,
-#         age2date = sus_cens_postno_age2date,
+        # n_samples = nrow(d_fit_sus_cens_postno),
+        # e = d_fit_sus_cens_postno$left_age_e,    
+        # r = d_fit_sus_cens_postno$right_age_r,   
+        # sex = d_fit_sus_cens_postno$sex, 
+        # age2date = sus_cens_postno_age2date, 
 #         beta_male = beta_male,
 #         beta0_sus = beta0_survival_sus,
 #         beta0_inf = beta0_survival_inf,
@@ -614,58 +613,43 @@ dSusMortNoTest <- nimble::nimbleFunction(
             ### calculating the joint likelihood
             #######################################
 
-            # total probability of getting infected and dying before end of the study
-            #if x == e[i]
             lik_temp <- lik_temp + 
                         (1 - exp(-lam_foi[e[i]]))*
                         (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)])))*
                         exp(-sum(lam_inf[e[i]:(r[i] - 1)]))
-            for(k in (e[i] + 1):(r[i] - 1)) {
-                lik_temp <- lik_temp + 
-                            (1 - exp(-lam_foi[k])) * 
+            if((r[i] - e[i]) > 2) {
+                for(k in (e[i] + 1):(r[i] - 1)) {
+                    lik_temp <- lik_temp + 
+                                (1 - exp(-lam_foi[k])) *
+                                (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)]))) *
+                                exp(-sum(lam_foi[e[i]:(k - 1)])) *
+                                exp(-sum(lam_sus[e[i]:(k - 1)])) *
+                                exp(-sum(lam_inf[k:(r[i] - 1)]))
+                }
+                lik_temp <- lik_temp +
+                            (1 - exp(-lam_foi[s[i]-1])) * 
                             (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)]))) *
-                            exp(-sum(lam_foi[e[i]:(k - 1)])) *
-                            exp(-sum(lam_sus[e[i]:(k - 1)])) *
-                            exp(-sum(lam_inf[k:(r[i] - 1)]))
-            }
-            lik_temp <- lik_temp +
-                        (1 - exp(-lam_foi[s[i]-1])) * 
-                        (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)]))) *
-                        exp(-sum(lam_foi[e[i]:(r[i] - 1)])) *
-                        exp(-sum(lam_sus[e[i]:(r[i] - 1)]))
-
-            # lik_temp <- lik_temp + lam_foi[dn1[i] + 1] *
-            #     exp(-sum(lam_inf[(dn1[i] + 1):(r[i] - 1)])) *
-            #     (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)])))
-            # if ((r[i] - dn1[i]) > 3) {
-            #     for (k in (dn1[i] + 2):(r[i] - 2)) {
-            #         lik_temp <- lik_temp + lam_foi[k] *
-            #             exp(-sum(lam_foi[(dn1[i] + 1):(k - 1)])) *
-            #             exp(-sum(lam_sus[(dn1[i] + 1):(k - 1)])) *
-            #             exp(-sum(lam_inf[k:(r[i] - 1)])) *
-            #             (1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)])))
-            #     }
-            # }
-            # if ((r[i] - dn1[i]) > 2) {
-            #     for (k in (r[i] - 1):(s[i] - 2)) {
-            #         lik_temp <- lik_temp + lam_foi[k] *
-            #             exp(-sum(lam_foi[(dn1[i] + 1):(k - 1)])) *
-            #             exp(-sum(lam_sus[(dn1[i] + 1):(k - 1)])) *
-            #             (1 - exp(-sum(lam_inf[k:(s[i] - 1)])))
-            #     }
-            # }
-            # lik_temp <- lik_temp + lam_foi[(s[i] - 1)] *
-            #     exp(-sum(lam_foi[(dn1[i] + 1):((s[i] - 1) - 1)])) *
-            #     exp(-sum(lam_sus[(dn1[i] + 1):((s[i] - 1) - 1)])) *
-            #     (lam_inf[(s[i] - 1)])
-
-            sumllik <- sumllik +
+                            exp(-sum(lam_foi[e[i]:(r[i] - 1)])) *
+                            exp(-sum(lam_sus[e[i]:(r[i] - 1)]))
+                sumllik <- sumllik +
                        log(
                         exp(-sum(lam_foi[e[i]:(s[i] - 1)])) *
                         exp(-sum(lam_sus[e[i]:(r[i] - 1)])) *
                         (1 - exp(-sum(lam_sus[r[i]:(s[i] - 1)]))) +
                         lik_temp
                        )#endloglik
+            } else {
+                lik_temp <- lik_temp + 
+                                (1 - exp(-lam_foi[e[i]])) *
+                                (1 - exp(-sum(lam_inf[e[i]:(s[i] - 1)])))
+
+                sumllik <- sumllik +
+                       log(
+                        exp(-sum(lam_foi[e[i]:(s[i] - 1)])) *
+                        (1 - exp(-sum(lam_sus[r[i]:(s[i] - 1)])))) +
+                        lik_temp
+
+            }
         }
         returnType(double(0))
         if (log) {
@@ -723,7 +707,7 @@ assign("dSusMortNoTest", dSusMortNoTest, envir = .GlobalEnv)
 #         beta0_sus = beta0_survival_sus,
 #         beta0_inf = beta0_survival_inf,
 #         age_effect_surv = age_effect_survival_test,
-#         period_effect_surv = period_effect_surv,
+#         period_effect_surv = period_effect_survival_test[(nT_period_precollar_ext + 1):nT_period_overall_ext],
 #         f_age_foi = f_age_foi,
 #         m_age_foi = m_age_foi,
 #         age_lookup_f = age_lookup_f,
@@ -880,24 +864,26 @@ dIcapMort <- nimble::nimbleFunction(
             # preliminary hazards for the likelihood
             #############################################
             if (sex[i] == 0) { # females
-                # sum up infected hazard from 1 to e-1
-                for (j in e[i]:(r[i] - 1)) {
-                    lam_inf <- lam_inf +
-                               exp(beta0_inf +
-                                   age_effect_surv[j] +
-                                   period_effect_surv[age2date[i] + j])
+                if(r[i]>e[i]){
+                    for (j in e[i]:(r[i] - 1)) {
+                        lam_inf <- lam_inf +
+                                exp(beta0_inf +
+                                    age_effect_surv[j] +
+                                    period_effect_surv[age2date[i] + j])
+                    }
                 }
                 lam_inf_s <- sum(exp(beta0_inf +
                     age_effect_surv[(r[i]):(s[i] - 1)] +
                     period_effect_surv[age2date[i] + (r[i]):(s[i] - 1)]))
             } else {
-                # sum up infected hazard from 1 to e-1
-                for (j in e[i]:(r[i] - 1)) {
+                if(r[i]>e[i]){
+                    for (j in e[i]:(r[i] - 1)) {
                     lam_inf <- lam_inf +
                                exp(beta0_inf +
                                    age_effect_surv[j] +
                                    period_effect_surv[age2date[i] + j] +
                                    beta_male)
+                    }
                 }
                 lam_inf_s <- sum(exp(beta0_inf +
                     age_effect_surv[r[i]:(s[i] - 1)] +
@@ -1192,17 +1178,22 @@ dRecNegCensPostNo <- nimble::nimbleFunction(
             ### calculating the joint likelihood
             #######################################
 
-            lik_temp <- (1 - exp(-lam_foi[dn1[i]])) *
-                        exp(-sum(lam_inf[dn1[i]:(r[i] - 1)]))
+            if((r[i] - dn1[i])>2){
+                lik_temp <- (1 - exp(-lam_foi[dn1[i]])) *
+                            exp(-sum(lam_inf[dn1[i]:(r[i] - 1)]))
 
-            for (k in (dn1[i] + 1):(r[i] - 1)) {
-                lik_temp <- lik_temp +
-                            (1 - exp(-lam_foi[k])) *
-                            exp(-sum(lam_sus[dn1[i]:(k - 1)])) *
-                            exp(-sum(lam_inf[k:(r[i] - 1)])) *
-                            exp(-sum(lam_foi[k:(r[i] - 1)]))
+                for (k in (dn1[i] + 1):(r[i] - 1)) {
+                    lik_temp <- lik_temp +
+                                (1 - exp(-lam_foi[k])) *
+                                exp(-sum(lam_sus[dn1[i]:(k - 1)])) *
+                                exp(-sum(lam_inf[k:(r[i] - 1)])) *
+                                exp(-sum(lam_foi[k:(r[i] - 1)]))
+                }
+
+            } else {
+                lik_temp <- (1 - exp(-lam_foi[dn1[i]])) *
+                            exp(-sum(lam_inf[dn1[i]]))
             }
-
             sumllik <- sumllik +
                        log(exp(-sum(lam_sus[e[i]:(dn1[i] - 1)])) *
                            exp(-sum(lam_foi[e[i]:(dn1[i] - 1)])) *
@@ -1266,18 +1257,18 @@ assign("dRecNegCensPostNo", dRecNegCensPostNo, envir = .GlobalEnv)
 #         beta0_sus = beta0_survival_sus,
 #         beta0_inf = beta0_survival_inf,
 #         age_effect_surv = age_effect_survival_test,
-#         period_effect_surv = period_effect_surv,
+#         period_effect_surv = period_effect_survival_test[(nT_period_precollar_ext + 1):nT_period_overall_ext],
 #         f_age_foi = f_age_foi,
 #         m_age_foi = m_age_foi,
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
-#         # period_lookup_foi = period_lookup_foi,
-#         # f_period_foi = f_period_foi,
-#         # m_period_foi = m_period_foi,
-#         sect = d_fit_rec_neg_cens_postno$study_area,
-#         space = c(0,-.55),
-#         log = TRUE
-#         )
+        # period_lookup_foi = period_lookup_foi,
+        # f_period_foi = f_period_foi,
+        # m_period_foi = m_period_foi,
+        # sect = d_fit_rec_neg_cens_postno$study_area,
+        # space = c(0,-.55),
+        # log = TRUE
+        # )
 # (end <- Sys.time()-starttime)
 # test
 
@@ -1681,12 +1672,6 @@ dRecPosMort <- nimble::nimbleFunction(
                     period_effect_surv[(e[i] + age2date[i]):
                     (s[i] - 1 + age2date[i])] +
                     beta_male)
-                # survival hazard for susceptible deer
-                lam_sus[e[i]:(dn[i] - 1)] <- exp(beta0_sus +
-                    age_effect_surv[e[i]:(dn[i] - 1)] +
-                    period_effect_surv[(e[i] + age2date[i]):
-                                       (dn[i] - 1 + age2date[i])] +
-                    beta_male)
                 # force of infection infection hazard
                 lam_foi[e[i]:(dn[i] - 1)] <- exp(space[sect[i]] +
                     m_age_foi[age_lookup_m[e[i]:(dn[i] - 1)]] )
@@ -1700,13 +1685,14 @@ dRecPosMort <- nimble::nimbleFunction(
             lik_temp <- lik_temp + 
                         (1 - exp(-lam_foi[(e[i])])) *
                 exp(-sum(lam_inf[(e[i]):(r[i] - 1)]))
-
-            for (k in (e[i]+ 1):(dn[i] - 1)) {
-                lik_temp <- lik_temp + 
-                    (1 - exp(-lam_foi[k])) *
-                    exp(-sum(lam_inf[k:(r[i] - 1)])) *
-                    exp(-sum(lam_foi[e[i]:(k - 1)])) *
-                    exp(-sum(lam_sus[e[i]:(k - 1)]))
+            if((dn[i] - e[i])>1){
+                for (k in (e[i]+ 1):(dn[i] - 1)) {
+                    lik_temp <- lik_temp + 
+                        (1 - exp(-lam_foi[k])) *
+                        exp(-sum(lam_inf[k:(r[i] - 1)])) *
+                        exp(-sum(lam_foi[e[i]:(k - 1)])) *
+                        exp(-sum(lam_sus[e[i]:(k - 1)]))
+                }
             }
             sumllik <- sumllik + 
                        log(1 - exp(-sum(lam_inf[r[i]:(s[i] - 1)]))) +
@@ -1760,12 +1746,12 @@ assign("dRecPosMort", dRecPosMort, envir = .GlobalEnv)
 # test <-  dRecPosMort(
 #         x = 1,
 #         n_samples = nrow(d_fit_rec_pos_mort),
-#         e = d_fit_rec_pos_mort$left_age_e,
-#         r = d_fit_rec_pos_mort$right_age_r,
-#         s = d_fit_rec_pos_mort$right_age_s,
-#         dn = d_fit_rec_pos_mort$ageweek_recap,
-#         sex = d_fit_rec_pos_mort$sex,
-#         age2date = rec_pos_mort_age2date,
+        # e = d_fit_rec_pos_mort$left_age_e,
+        # r = d_fit_rec_pos_mort$right_age_r,
+        # s = d_fit_rec_pos_mort$right_age_s,
+        # dn = d_fit_rec_pos_mort$ageweek_recap,
+        # sex = d_fit_rec_pos_mort$sex,
+        # age2date = rec_pos_mort_age2date,
 #         beta_male = beta_male,
 #         beta0_sus = beta0_survival_sus,
 #         beta0_inf = beta0_survival_inf,
@@ -1865,7 +1851,7 @@ dNegCapPosMort <- nimble::nimbleFunction(
                 lam_foi[e[i]:(s[i] - 1)] <- exp(space[sect[i]] +
                     m_age_foi[age_lookup_m[e[i]:(s[i] - 1)]])
                     # m_period_foi[period_lookup_foi[(e[i] + age2date[i]):
-					#                            (e[i] - 1 + age2date[i])]] +
+                    #                            (e[i] - 1 + age2date[i])]] +
             }
 
             #######################################
@@ -1874,13 +1860,14 @@ dNegCapPosMort <- nimble::nimbleFunction(
             lik_temp <- lik_temp +
                         (1 - exp(-lam_foi[e[i]])) *
                         exp(-sum(lam_inf[e[i]:(r[i] - 1)]))
-
-            for (k in (e[i] + 1):(r[i] - 1)) {
-                    lik_temp <- lik_temp +
-                                (1 - exp(-lam_foi[k])) *
-                                exp(-sum(lam_inf[(k):(r[i] - 1)])) *
-                                exp(-sum(lam_sus[e[i]:(k - 1)])) *
-                                exp(-sum(lam_foi[e[i]:(k - 1)]))
+            if((r[i] - e[i])>2) {
+                for (k in (e[i] + 1):(r[i] - 1)) {
+                        lik_temp <- lik_temp +
+                                    (1 - exp(-lam_foi[k])) *
+                                    exp(-sum(lam_inf[(k):(r[i] - 1)])) *
+                                    exp(-sum(lam_sus[e[i]:(k - 1)])) *
+                                    exp(-sum(lam_foi[e[i]:(k - 1)]))
+                }
             }
             lik_temp <- lik_temp +
                         (1 - exp(-lam_foi[s[i] - 1])) *

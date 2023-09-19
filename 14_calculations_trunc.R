@@ -304,39 +304,75 @@ Ccalc_surv_harvest <- compileNimble(calc_surv_harvest)
 
 assign("calc_surv_harvest", calc_surv_harvest, envir = .GlobalEnv)
 
-# starttime <- Sys.time()
-# sh_sus <- calc_surv_harvest(
-#         nT_age = nT_age_surv,
-#         nT_period = nT_period_collar,
-#         nT_age_short_f = nT_age_short_f,
-#         nT_age_short_m = nT_age_short_m,
-#         nT_age_surv_aah_f = nT_age_surv_aah_f,
-#         nT_age_surv_aah_m = nT_age_surv_aah_m,
-#         beta0 = beta0_survival_sus,
-#         beta_male = beta_male,
-#         age_effect = age_effect_survival_test,
-#         period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
-#         n_sex = n_sex,
-#         n_year = n_year,
-#         n_agef = n_agef,
-#         n_agem = n_agem,
-#         ng_start = d_fit_season$ng_start,
-#         gun_start = d_fit_season$gun_start,
-#         gun_end = d_fit_season$gun_end,
-#         ng_end = d_fit_season$ng_end,
-# 	yr_start_age = yr_start_age,
-#     yr_start_pop = d_fit_season_pop$yr_start,
-#         p_nogun_f = .55,
-#         p_nogun_m = .65,
-#         p_gun_f = .8,
-#         p_gun_m = .95
-#         # p_nogun_f = p_ng_f,
-#         # p_nogun_m = p_ng_m,
-#         # p_gun_f = p_gun_f,
-#         # p_gun_m = p_gun_m
-#         )
-# (endtime3 <- Sys.time() - starttime)
-# sh_sus[1,4,]
+starttime <- Sys.time()
+        nT_age = nT_age_surv
+        nT_period = nT_period_collar
+        nT_age_short_f = nT_age_short_f
+        nT_age_short_m = nT_age_short_m
+        nT_age_surv_aah_f = nT_age_surv_aah_f
+        nT_age_surv_aah_m = nT_age_surv_aah_m
+        beta0 = beta0_survival_sus
+        beta_male = beta_male
+        age_effect = age_effect_survival_test
+        period_effect = period_effect_survival_test[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
+        n_sex = n_sex
+        n_year = n_year        nT_age = nT_age_surv
+        nT_period = nT_period_collar
+        nT_age_short_f = nT_age_short_f
+        nT_age_short_m = nT_age_short_m
+        nT_age_surv_aah_f = nT_age_surv_aah_f
+        nT_age_surv_aah_m = nT_age_surv_aah_m
+        beta0 = beta0_survival_sus
+        beta_male = beta_male
+        age_effect = age_effect_survival_test
+        n_agef = n_agef
+        n_agem = n_agem
+        ng_start = d_fit_season_pop$ng_start
+        gun_start = d_fit_season_pop$gun_start
+        gun_end = d_fit_season_pop$gun_end
+        ng_end = d_fit_season_pop$ng_end
+	yr_start_age = yr_start_age
+    yr_start_pop = d_fit_season_pop$yr_start
+        p_nogun_f = .55
+        p_nogun_m = .65
+        p_gun_f = .8
+        p_gun_m = .9
+
+
+
+
+sh_sus <- calc_surv_harvest(
+        nT_age = nT_age_surv,
+        nT_period = nT_period_collar,
+        nT_age_short_f = nT_age_short_f,
+        nT_age_short_m = nT_age_short_m,
+        nT_age_surv_aah_f = nT_age_surv_aah_f,
+        nT_age_surv_aah_m = nT_age_surv_aah_m,
+        beta0 = beta0_survival_sus,
+        beta_male = beta_male,
+        age_effect = age_effect_survival_test,
+        period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
+        n_sex = n_sex,
+        n_year = n_year,
+        n_agef = n_agef,
+        n_agem = n_agem,
+        ng_start = d_fit_season_pop$ng_start,
+        gun_start = d_fit_season_pop$gun_start,
+        gun_end = d_fit_season_pop$gun_end,
+        ng_end = d_fit_season_pop$ng_end,
+	yr_start_age = yr_start_age,
+    yr_start_pop = d_fit_season_pop$yr_start,
+        p_nogun_f = .55,
+        p_nogun_m = .65,
+        p_gun_f = .8,
+        p_gun_m = .95
+        # p_nogun_f = p_ng_f,
+        # p_nogun_m = p_ng_m,
+        # p_gun_f = p_gun_f,
+        # p_gun_m = p_gun_m
+        )
+(endtime3 <- Sys.time() - starttime)
+sh_sus[1,4,]
 
 #######################################################################
 ###

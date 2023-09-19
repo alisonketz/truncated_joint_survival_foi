@@ -277,6 +277,7 @@ d_fit_season_pop$year  <- d_fit_season$year
 nT_age_surv <- max(d_surv$right_age_s, na.rm = TRUE) - 1
 yr_start_age <- seq(1,nT_age_surv,by = 52)
 
+d_fit_season
 ################################################################
 ###
 ### preliminaries for hunter harvest Z at a monthly time step
