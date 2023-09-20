@@ -1192,7 +1192,7 @@ dRecNegCensPostNo <- nimble::nimbleFunction(
 
             } else {
                 lik_temp <- (1 - exp(-lam_foi[dn1[i]])) *
-                            exp(-sum(lam_inf[dn1[i]]))
+                            exp(-lam_inf[dn1[i]])
             }
             sumllik <- sumllik +
                        log(exp(-sum(lam_sus[e[i]:(dn1[i] - 1)])) *
@@ -1953,7 +1953,7 @@ assign("dNegCapPosMort", dNegCapPosMort, envir = .GlobalEnv)
 
 #######################################################################
 ###
-###   User defined distribution for likelihood for
+###  User defined distribution for likelihood for
 ###  harvested deer, revised for multiple deer
 ###
 ###   d_fit_hunt

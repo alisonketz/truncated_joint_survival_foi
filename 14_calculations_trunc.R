@@ -94,31 +94,31 @@ calc_surv_aah <- nimble::nimbleFunction(
 Ccalc_surv_aah <- compileNimble(calc_surv_aah)
 
 # assign("calc_surv_aah", calc_surv_aah, envir = .GlobalEnv)
-starttime <- Sys.time()
-sn_sus <- calc_surv_aah(
-    nT_age = nT_age_surv,
-    nT_period = nT_period_collar,
-    nT_age_short_f = nT_age_short_f,
-    nT_age_short_m = nT_age_short_m,
-    nT_age_surv_aah_f = nT_age_surv_aah_f,
-    nT_age_surv_aah_m = nT_age_surv_aah_m,
-    beta0 = beta0_survival_sus,
-    # beta0 = mean(beta0_survival_sus),
-    beta_male = beta_male,
-    # beta_male = mean(beta_male),
-    age_effect = age_effect_survival_test,        # length = 962
-    # age_effect = apply(age_effect_survival,2,mean),        # length = 962
-    # period_effect = apply(period_effect_survival,2,mean), 
-    period_effect = period_effect_survival_test[(nT_period_precollar_ext + 1):(nT_period_overall_ext)], 
-	yr_start_age = yr_start_age,
-    yr_start_pop = d_fit_season_pop$yr_start,
-    n_year = n_year,
-    n_agef = n_agef,
-    n_agem = n_agem)
-(endtime1 <- Sys.time() - starttime)
-sn_sus[1,3,]
-sn_sus[1,,]
-sn_sus[2,,]
+# starttime <- Sys.time()
+# sn_sus <- calc_surv_aah(
+#     nT_age = nT_age_surv,
+#     nT_period = nT_period_collar,
+#     nT_age_short_f = nT_age_short_f,
+#     nT_age_short_m = nT_age_short_m,
+#     nT_age_surv_aah_f = nT_age_surv_aah_f,
+#     nT_age_surv_aah_m = nT_age_surv_aah_m,
+#     beta0 = beta0_survival_sus,
+#     # beta0 = mean(beta0_survival_sus),
+#     beta_male = beta_male,
+#     # beta_male = mean(beta_male),
+#     age_effect = age_effect_survival_test,        # length = 962
+#     # age_effect = apply(age_effect_survival,2,mean),        # length = 962
+#     # period_effect = apply(period_effect_survival,2,mean), 
+#     period_effect = period_effect_survival_test[(nT_period_precollar_ext + 1):(nT_period_overall_ext)], 
+# 	yr_start_age = yr_start_age,
+#     yr_start_pop = d_fit_season_pop$yr_start,
+#     n_year = n_year,
+#     n_agef = n_agef,
+#     n_agem = n_agem)
+# (endtime1 <- Sys.time() - starttime)
+# sn_sus[1,3,]
+# sn_sus[1,,]
+# sn_sus[2,,]
 
 # starttime <- Sys.time()
 # sn_inf <- Ccalc_surv_aah(
@@ -304,75 +304,38 @@ Ccalc_surv_harvest <- compileNimble(calc_surv_harvest)
 
 assign("calc_surv_harvest", calc_surv_harvest, envir = .GlobalEnv)
 
-starttime <- Sys.time()
-        nT_age = nT_age_surv
-        nT_period = nT_period_collar
-        nT_age_short_f = nT_age_short_f
-        nT_age_short_m = nT_age_short_m
-        nT_age_surv_aah_f = nT_age_surv_aah_f
-        nT_age_surv_aah_m = nT_age_surv_aah_m
-        beta0 = beta0_survival_sus
-        beta_male = beta_male
-        age_effect = age_effect_survival_test
-        period_effect = period_effect_survival_test[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
-        n_sex = n_sex
-        n_year = n_year        nT_age = nT_age_surv
-        nT_period = nT_period_collar
-        nT_age_short_f = nT_age_short_f
-        nT_age_short_m = nT_age_short_m
-        nT_age_surv_aah_f = nT_age_surv_aah_f
-        nT_age_surv_aah_m = nT_age_surv_aah_m
-        beta0 = beta0_survival_sus
-        beta_male = beta_male
-        age_effect = age_effect_survival_test
-        n_agef = n_agef
-        n_agem = n_agem
-        ng_start = d_fit_season_pop$ng_start
-        gun_start = d_fit_season_pop$gun_start
-        gun_end = d_fit_season_pop$gun_end
-        ng_end = d_fit_season_pop$ng_end
-	yr_start_age = yr_start_age
-    yr_start_pop = d_fit_season_pop$yr_start
-        p_nogun_f = .55
-        p_nogun_m = .65
-        p_gun_f = .8
-        p_gun_m = .9
-
-
-
-
-sh_sus <- calc_surv_harvest(
-        nT_age = nT_age_surv,
-        nT_period = nT_period_collar,
-        nT_age_short_f = nT_age_short_f,
-        nT_age_short_m = nT_age_short_m,
-        nT_age_surv_aah_f = nT_age_surv_aah_f,
-        nT_age_surv_aah_m = nT_age_surv_aah_m,
-        beta0 = beta0_survival_sus,
-        beta_male = beta_male,
-        age_effect = age_effect_survival_test,
-        period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
-        n_sex = n_sex,
-        n_year = n_year,
-        n_agef = n_agef,
-        n_agem = n_agem,
-        ng_start = d_fit_season_pop$ng_start,
-        gun_start = d_fit_season_pop$gun_start,
-        gun_end = d_fit_season_pop$gun_end,
-        ng_end = d_fit_season_pop$ng_end,
-	yr_start_age = yr_start_age,
-    yr_start_pop = d_fit_season_pop$yr_start,
-        p_nogun_f = .55,
-        p_nogun_m = .65,
-        p_gun_f = .8,
-        p_gun_m = .95
-        # p_nogun_f = p_ng_f,
-        # p_nogun_m = p_ng_m,
-        # p_gun_f = p_gun_f,
-        # p_gun_m = p_gun_m
-        )
-(endtime3 <- Sys.time() - starttime)
-sh_sus[1,4,]
+# sh_sus <- calc_surv_harvest(
+#         nT_age = nT_age_surv,
+#         nT_period = nT_period_collar,
+#         nT_age_short_f = nT_age_short_f,
+#         nT_age_short_m = nT_age_short_m,
+#         nT_age_surv_aah_f = nT_age_surv_aah_f,
+#         nT_age_surv_aah_m = nT_age_surv_aah_m,
+#         beta0 = beta0_survival_sus,
+#         beta_male = beta_male,
+#         age_effect = age_effect_survival_test,
+#         period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
+#         n_sex = n_sex,
+#         n_year = n_year,
+#         n_agef = n_agef,
+#         n_agem = n_agem,
+#         ng_start = d_fit_season_pop$ng_start,
+#         gun_start = d_fit_season_pop$gun_start,
+#         gun_end = d_fit_season_pop$gun_end,
+#         ng_end = d_fit_season_pop$ng_end,
+# 	yr_start_age = yr_start_age,
+#     yr_start_pop = d_fit_season_pop$yr_start,
+#         p_nogun_f = .55,
+#         p_nogun_m = .65,
+#         p_gun_f = .8,
+#         p_gun_m = .95
+#         # p_nogun_f = p_ng_f,
+#         # p_nogun_m = p_ng_m,
+#         # p_gun_f = p_gun_f,
+#         # p_gun_m = p_gun_m
+#         )
+# (endtime3 <- Sys.time() - starttime)
+# sh_sus[1,4,]
 
 #######################################################################
 ###
@@ -551,16 +514,16 @@ calc_infect_prob_hunt <- nimbleFunction(
             for (a in 1:n_agef) {
                 p_inf[k, 1, a, t] <- 
                     (1 - exp(-sum(diag(gam[k,
-                                           1,
-                                           yr_start_age[a]:(yr_start_age[a] + length(yr_start_pop[t]:ng_end[t]) - 1),
-                                           yr_start_pop[t]:ng_end[t]])))) * calibration_transition
+                1,
+                yr_start_age[a]:(yr_start_age[a] + length(yr_start_pop[t]:ng_end[t]) - 1),
+                yr_start_pop[t]:ng_end[t]])))) * calibration_transition
             }
             for (a in 1:n_agem) {
                 p_inf[k, 2, a, t] <- 
                     (1 - exp(-sum(diag(gam[k,
-                                           2,
-                                           yr_start_age[a]:(yr_start_age[a] + length(yr_start_pop[t]:ng_end[t]) - 1),
-                                           yr_start_pop[t]:ng_end[t]])))) * calibration_transition
+                2,
+                yr_start_age[a]:(yr_start_age[a] + length(yr_start_pop[t]:ng_end[t]) - 1),
+                yr_start_pop[t]:ng_end[t]])))) * calibration_transition
             }
         }
     }

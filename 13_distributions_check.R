@@ -100,14 +100,14 @@ beta_cause_gun = rnorm(1, 1.5, .1)
 beta_cause_ng = rnorm(1, 3, .1)
 tau_obs = runif(1, .01, .5)
 tau_pop = rgamma(2, 10, 1)
-report_overall = report_overall_init
-report = report_init
-fec_epsilon = fec_eps_init
-mu_fec = rnorm(1, mu_fec_init, .01)
-fec_prec_eps = runif(1, 5, 10)
-space_temp = rnorm(1, -.55, .01)
-space_mix = 1
-space = c(0, space_temp * space_mix)
+# report_overall = report_overall_init
+# report = report_init
+# fec_epsilon = fec_eps_init
+# mu_fec = rnorm(1, mu_fec_init, .01)
+# fec_prec_eps = runif(1, 5, 10)
+# space_temp = rnorm(1, -.55, .01)
+# space_mix = 1
+# space = c(0, space_temp * space_mix)
 
 # period_effect_survival_test <- rep(0,nT_period_overall_ext)
 # age_effect_survival_test <- rep(0, nT_age_surv)
