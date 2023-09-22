@@ -122,12 +122,12 @@ df_age_before_male$proportion <-
 
 
 temp1 <- cwd_df %>% 
-			  filter(kill_year > 2016) %>%
+			  filter(kill_year == 2016) %>%
               group_by(age, sex, ew) %>%
               summarise(n_cases = n(), .groups = 'drop')
 
 temp2 <- cwd_df %>% 
-			  filter(kill_year > 2016) %>%
+			  filter(kill_year == 2016) %>%
               filter(teststatus == 1) %>%
               group_by(age, sex, ew) %>%
               summarise(n_cases_pos = n(), .groups = 'drop')

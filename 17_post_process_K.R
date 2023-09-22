@@ -14,7 +14,7 @@
 fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "M"
+modelid <- "O"
 
 #############################
 ### Saving Model Description
@@ -402,7 +402,7 @@ ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effec
 ###
 ###################################################
 
-save(mcmcout,file = paste0("results/mcmcout_",modelid,".Rdata"))
+save(mcmcout,file = paste0("results/",modelid,"/mcmcout_",modelid,".Rdata"))
 
 ##################################################
 ##################################################
@@ -413,19 +413,19 @@ save(mcmcout,file = paste0("results/mcmcout_",modelid,".Rdata"))
 ##################################################
 ##################################################
 
-modelid <- "I"
+modelid <- "O"
 
-load(paste0("results/mcmcout_",modelid,".Rdata"))
+load(paste0("results/",modelid,"/mcmcout_",modelid,".Rdata"))
 
 # fit_sum <- mcmcout$summary
 fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-# gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
-# gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
-# gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
-# gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
-# gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("beta",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("tau",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("sd",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("f_age",rownames(fit_sum))],multivariate = FALSE)
+gelman.diag(out[,grep("m_age",rownames(fit_sum))],multivariate = FALSE)
 
 ##########################################################
 #plots of annual survival
@@ -436,183 +436,1806 @@ period_effect_survival <- do.call(rbind,out[,grep("period_effect_surv",rownames(
 beta0_survival_sus <- do.call(c,out[,grep("beta0_survival_sus",rownames(fit_sum))])
 beta0_survival_inf <- do.call(c,out[,grep("beta0_survival_inf",rownames(fit_sum))])
 beta_male<- do.call(c,out[,grep("beta_male",rownames(fit_sum))])
-
 tot_iter <- nrow(age_effect_survival)
-sn_sus_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
-
-  ##sex,age,year
-for (k in 1:tot_iter) {
-  sn_sus_samples[k,,,] <- calc_surv_aah(
-      nT_age = nT_age_surv,
-      nT_period = nT_period_collar,
-      nT_age_short_f = nT_age_short_f,
-      nT_age_short_m = nT_age_short_m,
-      nT_age_surv_aah_f = nT_age_surv_aah_f,
-      nT_age_surv_aah_m = nT_age_surv_aah_m,
-      beta0 = beta0_survival_sus[k],
-      beta_male = beta_male[k],
-      age_effect = age_effect_survival[k,],
-      period_effect = period_effect_survival[k,],
-	    yr_start_age = yr_start_age,
-      yr_start_pop = d_fit_season_pop$yr_start,
-      n_year = n_year,
-      n_agef = n_agef,
-      n_agem = n_agem)
-}
-save(sn_sus_samples, file = "results/sn_sus_samples_I.Rdata")
-sn_sus_out <- apply(sn_sus_samples,2:4,mean,na.rm=TRUE)
-save(sn_sus_out, file = "results/sn_sus_out_I.Rdata")
-sn_sus_out[1,,]
-
-sn_inf_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
-  ##sex,age,year
-for (k in 1:tot_iter) {
-  sn_inf_samples[k,,,] <- calc_surv_aah(
-      nT_age = nT_age_surv,
-      nT_period = nT_period_collar,
-      nT_age_short_f = nT_age_short_f,
-      nT_age_short_m = nT_age_short_m,
-      nT_age_surv_aah_f = nT_age_surv_aah_f,
-      nT_age_surv_aah_m = nT_age_surv_aah_m,
-      beta0 = beta0_survival_inf[k],
-      beta_male = beta_male[k],
-      age_effect = age_effect_survival[k,],
-      period_effect = period_effect_survival[k,],
-	    yr_start_age = yr_start_age,
-      yr_start_pop = d_fit_season_pop$yr_start,
-      n_year = n_year,
-      n_agef = n_agef,
-      n_agem = n_agem)
-}
-save(sn_inf_samples, file = "results/sn_inf_samples_I.Rdata")
-sn_inf_out <- apply(sn_inf_samples,2:4,mean,na.rm=TRUE)
-save(sn_inf_out, file = "results/sn_inf_out_I.Rdata")
-sn_inf_out_sd <- apply(sn_inf_samples,2:4,sd,na.rm=TRUE)
-sn_sus_out_sd <- apply(sn_sus_samples,2:4,sd,na.rm=TRUE)
+sn_sus <-  do.call(rbind,out[,grep("sn_sus",rownames(fit_sum))])
+sn_inf <-  do.call(rbind,out[,grep("sn_inf",rownames(fit_sum))])
+sh_sus <-  do.call(rbind,out[,grep("sh_sus",rownames(fit_sum))])
+sh_inf <-  do.call(rbind,out[,grep("sh_inf",rownames(fit_sum))])
+psi <-  do.call(rbind,out[,grep("psi",rownames(fit_sum))])
+p_nogun_f <- do.call(c,out[,grep("p_nogun_f",rownames(fit_sum))])
+p_nogun_m <- do.call(c,out[,grep("p_nogun_m",rownames(fit_sum))])
+p_gun_f <- do.call(c,out[,grep("p_gun_f",rownames(fit_sum))])
+p_gun_m <- do.call(c,out[,grep("p_gun_m",rownames(fit_sum))])
 
 
-value=c(sn_sus_out)
-df_sn_sus_out <- data.frame(
-  survival=c(sn_sus_out),
-  survival_sd = c(sn_sus_out_sd),
-  sex = rep(c("Female","Male"),length(value)/2),
-  age = rep(1:10,each = 2,length(value)/20),
-  year= rep(2017:2021,each=length(value)/5)
-)
-df_sn_sus_out$cwd_status <- "Susceptible"
+#########################################################
+### Color pallets
+#########################################################
+
+renoir_pal <- met.brewer(name="Renoir", n=10, type="discrete")
+pillement_pal <- met.brewer(name="Pillement", n=6, type="discrete")
+troy_pal <- met.brewer(name="Troy", n=8, type="discrete")
 
 
-value=c(sn_inf_out)
-df_sn_inf_out <- data.frame(
-  survival=c(sn_inf_out),
-  survival_sd = c(sn_inf_out_sd),
-  sex = rep(c("Female","Male"),length(value)/2),
-  age = rep(1:10,each = 2,length(value)/20),
-  year= rep(2017:2021,each=length(value)/5)
-)
-df_sn_inf_out$cwd_status <- "Infected"
+##################################################################
+###
+### Clean plot of annual survival - Susceptibles (sn_sus)
+###
+###################################################################
 
-df_sn_out <- rbind(df_sn_sus_out,df_sn_inf_out)
-df_sn_out$age <- as.factor(df_sn_out$age)
-levels(df_sn_out$age) <- c("Fawn",as.character(1:8),"9+")
-df_sn_sus_out$age <- as.factor(df_sn_sus_out$age)
-levels(df_sn_sus_out$age) <- c("Fawn",as.character(1:8),"9+")
-df_sn_inf_out$age <- as.factor(df_sn_inf_out$age)
-levels(df_sn_inf_out$age) <- c("Fawn",as.character(1:8),"9+")
+n_df <- length(fit_sum[grep("sn_sus",rownames(fit_sum)),1])
 
-mypal <- met.brewer(name="Renoir", n=10, type="discrete")
+df_sn_sus  <- data.frame(survival = fit_sum[grep("sn_sus",rownames(fit_sum)),1],
+                         lower = fit_sum[grep("sn_sus",rownames(fit_sum)),4],                    
+                         upper = fit_sum[grep("sn_sus",rownames(fit_sum)),5],
+                         sex = rep(c("Female","Male"),n_df/2),
+                         age = rep(1:10,each = 2,n_df/20),
+                         year = rep(2017:2021, each = n_df/5)
+                        )
 
+df_sn_sus <- df_sn_sus %>% filter(!is.na(survival))
+df_sn_sus$age <- as.factor(df_sn_sus$age)
+levels(df_sn_sus$age) <- c("Fawn",as.character(1:8),"9+")
 
-out_plot_inf <- ggplot(data=df_sn_inf_out)+
-                geom_point(aes(x= year,y=survival,color=age),size = 4,alpha =.8)+
-                facet_wrap(~sex)+
-                theme_bw()+
-                ylab("Annual Survival Probability May 15-May14 the following year")+
-                xlab("Year")+
-                scale_color_manual("Age",values=mypal)+
-                theme(axis.text = element_text(size = 14),
-                axis.title = element_text(size = 16),
-                strip.text = element_text(size = 16),
-                legend.title = element_text(size = 16),
-                legend.text = element_text(size = 14))
-
-out_plot_sus <- ggplot(data=df_sn_sus_out) +
-                geom_point(aes(x= year,y=survival,color = age),size = 4,alpha = .8) +
+out_plot_sus <- ggplot(data=df_sn_sus) +
+                geom_point(aes(x= year,y=survival,color = age),size = 4,alpha = .6) +
                 facet_wrap(~sex) +
                 theme_bw()+
                 ylab("Annual Survival Probability May 15-May14 the following year")+
                 xlab("Year")+
-                scale_color_manual("Age",values=mypal)+
+                ylim(0,1)+
+                scale_color_manual("Age",values=renoir_pal)+
                 theme(axis.text = element_text(size = 14),
                       axis.title = element_text(size = 16),
                       strip.text = element_text(size = 16),
                       legend.title = element_text(size = 16),
                       legend.text = element_text(size = 14)
                 )
+out_plot_sus
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_sus","_",modelid,".png"),out_plot_sus,height = 7, width = 10)
 
-ggsave(paste0("figures/",modelid,"/annual_survival_plot_sus","_",modelid,".png"),out_plot_sus)
-ggsave(paste0("figures/",modelid,"/annual_survival_plot_inf","_",modelid,".png"),out_plot_inf)
+df_sn_sus_f <- df_sn_sus %>% filter(sex == "Female")
+f_out_plot_sus_ci <- ggplot(data=df_sn_sus_f) +
+                geom_point(aes(x= year,y=survival,color = age),size = 3,alpha = .6) +
+                geom_errorbar(aes(x= year,ymin=lower, ymax=upper,color = age), width=.3)+
+                facet_wrap(~age, nrow  = 2) +
+                theme_bw()+
+                ylab("Annual Survival Probability")+
+                xlab("Year")+
+                ylim(0,1)+
+                scale_color_manual("Age",values=renoir_pal)+
+                theme(axis.text = element_text(size = 12),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14),
+                      axis.text.x = element_text(angle = 45,hjust = 1)
+                )
+f_out_plot_sus_ci
+
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_sus_f","_",modelid,".png"),
+              f_out_plot_sus_ci,height = 6, width = 10.5)
+
+
+df_sn_sus_m <- df_sn_sus %>% filter(sex == "Male")
+df_sn_sus_m$age <- as.factor(as.character(df_sn_sus_m$age))
+levels(df_sn_sus_m$age) <- c(as.character(1:5),"6+","Fawn")
+df_sn_sus_m$age <- factor(df_sn_sus_m$age,levels = c("Fawn",as.character(1:5),"6+"))
+
+m_out_plot_sus_ci <- ggplot(data=df_sn_sus_m) +
+                geom_point(aes(x= year,y=survival,color = age),size = 3,alpha = .6) +
+                geom_errorbar(aes(x= year,ymin=lower, ymax=upper,color = age), width=.3)+
+                facet_wrap(~age, nrow  = 2) +
+                theme_bw()+
+                ylab("Annual Survival Probability")+
+                xlab("Year")+
+                ylim(0,1)+
+                scale_color_manual("Age",values=renoir_pal)+
+                theme(axis.text = element_text(size = 12),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14),
+                      axis.text.x = element_text(angle = 45,hjust = 1)
+                )
+m_out_plot_sus_ci
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_sus_m","_",modelid,".png"),m_out_plot_sus_ci,height = 6, width = 10.5)
+
+
+##################################################################
+###
+### Clean plot of annual survival - Infected (sn_inf)
+###
+###################################################################
+
+n_df <- length(fit_sum[grep("sn_inf",rownames(fit_sum)),1])
+
+df_sn_inf  <- data.frame(survival = fit_sum[grep("sn_inf",rownames(fit_sum)),1],
+                         lower = fit_sum[grep("sn_inf",rownames(fit_sum)),4],                    
+                         upper = fit_sum[grep("sn_inf",rownames(fit_sum)),5],
+                         sex = rep(c("Female","Male"),n_df/2),
+                         age = rep(1:10,each = 2,n_df/20),
+                         year = rep(2017:2021, each = n_df/5)
+                        )
+
+df_sn_inf <- df_sn_inf %>% filter(!is.na(survival) & age != 1)
+df_sn_inf$age <- as.factor(df_sn_inf$age)
+
+levels(df_sn_inf$age)  <- c(as.character(1:8),"9+")
+
+
+out_plot_inf <- ggplot(data=df_sn_inf) +
+                geom_point(aes(x= year,y=survival,color = age),size = 4,alpha = .6) +
+                facet_wrap(~sex) +
+                theme_bw()+
+                ylab("Annual Survival Probability May 15-May14 the following year")+
+                xlab("Year")+
+                ylim(0,.5)+
+                scale_color_manual("Age",values=renoir_pal)+
+                theme(axis.text = element_text(size = 14),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14)
+                )
+out_plot_inf
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_inf","_",modelid,".png"),out_plot_inf,height = 7, width = 10)
+
+df_sn_inf_f <- df_sn_inf %>% filter(sex == "Female")
+f_out_plot_inf_ci <- ggplot(data=df_sn_inf_f) +
+                geom_point(aes(x= year,y=survival,color = age),size = 3,alpha = .6) +
+                geom_errorbar(aes(x= year,ymin=lower, ymax=upper,color = age), width=.3)+
+                facet_wrap(~age, nrow  = 2) +
+                theme_bw()+
+                ylab("Annual Survival Probability")+
+                xlab("Year")+
+                ylim(0,.5)+
+                scale_color_manual("Age",values=renoir_pal)+
+                theme(axis.text = element_text(size = 12),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14),
+                      axis.text.x = element_text(angle = 45,hjust = 1)
+                )
+f_out_plot_inf_ci
+
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_inf_f","_",modelid,".png"),
+              f_out_plot_inf_ci,height = 6, width = 10.5)
+
+
+df_sn_inf_m <- df_sn_inf %>% filter(sex == "Male")
+df_sn_inf_m$age <- as.factor(as.character(df_sn_inf_m$age))
+levels(df_sn_inf_m$age) <- c(as.character(1:5),"6+")
+ 
+
+
+
+###############################################
+###
+### Plot of period effects for mortality hazard
+###
+###############################################
+
+te_indx <- grep("period_effect_surv",rownames(fit_sum))#[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
+
+period_effect_mean <- fit_sum[te_indx,1] 
+period_effect_lower <- fit_sum[te_indx,4] 
+period_effect_upper <- fit_sum[te_indx,5]
+
+weeks <- 1:nT_period_collar
+
+out_period_effect <- data.frame(weeks,period_effect_mean,period_effect_lower,period_effect_upper)
+# out_period_effect_inf_int$disease <- "Infected"
+
+period_effect_plot <- ggplot(data =out_period_effect,aes(x = weeks))+
+  geom_line(aes(x = weeks,y=period_effect_mean),size=1)+
+  geom_ribbon(aes(ymin=period_effect_lower,ymax=period_effect_upper),alpha=.2,linetype=0)+
+  ggtitle("Log Mortality Hazard Period Effect ")+xlab("Time")+ylab("Log Mortality Hazard")+
+  theme_bw() +
+  scale_x_continuous(breaks = seq(0,nT_period_collar,by=52),labels=paste0("Jan ", 2017:2022)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 45,hjust = 1),
+        plot.title = element_text(size = 16)
+)
+  # scale_x_continuous(breaks = seq(0,inf_nT_period,by=104),labels=seq(0,18,by=2))+
+  # theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+period_effect_plot
+
+# ggsave("figures/period_effect_inf_int.pdf",period_effect_plot_inf_int)
+ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effect_plot, height = 6, width = 10)
+
+###############################################
+###
+### Plot of age effects for mortality hazard
+###
+###############################################
+
+ae_indx <- grep("age_effect",rownames(fit_sum))
+
+age_effect_mean <- fit_sum[ae_indx,2]
+age_effect_lower <- fit_sum[ae_indx,4]
+age_effect_upper <- fit_sum[ae_indx,5]
+
+weeks <- 1:nT_age_surv
+
+out_age_effect <- data.frame(weeks,age_effect_mean,age_effect_lower,age_effect_upper)
+
+age_effect_plot <- ggplot(data =out_age_effect,aes(x = weeks))+
+  geom_line(aes(x = weeks,y=age_effect_mean),size=1)+
+  geom_ribbon(aes(ymin=age_effect_lower,ymax=age_effect_upper),alpha=.2,linetype=0)+
+  ggtitle("Log Mortality Hazard Age Effect ")+xlab("Age") + ylab("Log Mortality Hazard")+
+  theme_bw() +
+  scale_x_continuous(breaks = seq(104,nT_age_surv,by=104),labels=seq(2,19,by =2)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 16)
+)
+age_effect_plot
+ggsave(paste0("figures/",modelid,"/age_effect_",modelid,".png"),age_effect_plot, height = 6, width = 8)
+
+
+###################################################
+###
+### Force of infection age plots
+###
+##################################################
+
+#females age foi posterior summary statistics
+df_age_foi_f <- data.frame(agegroups = 1:n_ageclassf,
+    foi_mn = fit_sum[grep("f_age_foi",rownames(fit_sum)),1][1:n_ageclassf],
+    foi_lower = fit_sum[grep("f_age_foi",rownames(fit_sum)),4][1:n_ageclassf],
+    foi_upper = fit_sum[grep("f_age_foi",rownames(fit_sum)),5][1:n_ageclassf],
+    sex = "Female"
+)
+df_age_foi_f <- rbind(df_age_foi_f,df_age_foi_f[nrow(df_age_foi_f),])
+df_age_foi_f$agegroups[nrow(df_age_foi_f)] <- df_age_foi_f$agegroups[nrow(df_age_foi_f)] + 1
+#males age foi posterior summary statistics
+df_age_foi_m <- data.frame(agegroups = 1:n_ageclassm,
+    foi_mn = fit_sum[grep("m_age_foi",rownames(fit_sum)),1][1:n_ageclassm],
+    foi_lower = fit_sum[grep("m_age_foi",rownames(fit_sum)),4][1:n_ageclassm],
+    foi_upper = fit_sum[grep("m_age_foi",rownames(fit_sum)),5][1:n_ageclassm],
+    sex = "Male"
+)
+df_age_foi_m <- rbind(df_age_foi_m,df_age_foi_m[nrow(df_age_foi_m),])
+df_age_foi_m$agegroups[nrow(df_age_foi_m)] <- df_age_foi_m$agegroups[nrow(df_age_foi_m)] + 1
+
+# df_age_foi_f$agegroups = as.factor(df_age_foi_f$agegroups)
+# df_age_foi_m$agegroups = as.factor(df_age_foi_m$agegroups)
+# df_age_foi$agegroups = as.factor(df_age_foi$agegroups)
+
+df_age_foi_f$agegroups <- df_age_foi_f$agegroups - 1
+df_age_foi_m$agegroups <- df_age_foi_m$agegroups - 1
+
+f_age_foi_plot=ggplot(data=df_age_foi_f)+
+  geom_rect(aes(xmin=agegroups,
+                xmax=lead(agegroups),
+                ymin=foi_lower,
+                ymax=foi_upper),
+            fill=pillement_pal[2],alpha=.8)+
+  geom_step(aes(x=agegroups,y=foi_mn),size=1.2)+
+  ggtitle("Female Force of Infection")+
+  theme_bw()+xlab("Age Class")+ylab("Age Effects Weekly Conversion Hazard (Log)")+
+  scale_x_continuous(breaks = (1:n_ageclassf)-.5,labels =c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5-8.5","9.5+"))+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 16)
+  )
+
+f_age_foi_plot
+
+ggsave(paste0("figures/",modelid,"/f_age_foi_",modelid,".png"),f_age_foi_plot, height = 6, width = 8)
+
+m_age_foi_plot <- ggplot(data=df_age_foi_m)+
+  geom_rect(aes(xmin=agegroups,
+                xmax=lead(agegroups),
+                ymin=foi_lower,
+                ymax=foi_upper),
+            fill=pillement_pal[4],alpha=.8)+
+  geom_step(aes(x=agegroups,y=foi_mn),size=1.2)+
+  ggtitle("Male Force of Infection")+
+  theme_bw()+xlab("Age Class")+ylab("Age Effects Weekly Conversion Hazard (Log)")+
+  scale_x_continuous(breaks = (1:n_ageclassm)-.5,labels =c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5+"))+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 16)
+  )
+
+m_age_foi_plot
+
+ggsave(paste0("figures/",modelid,"/m_age_foi_",modelid,".png"),m_age_foi_plot, height = 6, width = 8)
+
+##############################################
+###
+### FOI age hazard step plot combined sexes
+###
+###############################################
+
+f_age_foi_plot <- f_age_foi_plot+theme(axis.text.y=element_blank(),
+                                       axis.title.y = element_blank())
+m_age_foi_plot <- m_age_foi_plot + ggtitle("Male")
+f_age_foi_plot <- f_age_foi_plot + ggtitle("Female")
+
+combo_age_step_plot <- grid.arrange(m_age_foi_plot,f_age_foi_plot,ncol=2,widths = c(1.08,1))
+combo_age_step_plot
+
+ggsave(paste0("figures/",modelid,"/combo_age_step_plot_",modelid,".png"),combo_age_step_plot, height = 6, width = 10)
+ggsave(paste0("figures/",modelid,"/combo_age_step_plot_",modelid,".pdf"),combo_age_step_plot, height = 6, width = 10)
+
+
+##############################################
+###
+### infection probability sex/age specific
+###
+###############################################
+
+n_df <- length(fit_sum[grep("psi",rownames(fit_sum)),1])
+df_psi  <- data.frame(infection_prob = fit_sum[grep("psi",rownames(fit_sum)),1],
+                         lower = fit_sum[grep("psi",rownames(fit_sum)),4],                    
+                         upper = fit_sum[grep("psi",rownames(fit_sum)),5],
+                         study_area = rep(c("East","West"),n_df/2),
+                         sex = rep(c(rep("Female",2),rep("Male",2)),n_df/4),
+                         age = rep(1:10,each = 4)
+                        )
+
+df_psi <- df_psi %>% filter(infection_prob != 0)
+df_psi$age <- as.factor(df_psi$age)
+levels(df_psi$age) <- c("Fawn",as.character(1:8),"9+")
+
+out_plot_psi <- ggplot(data=df_psi) +
+                geom_point(aes(x= age,y=infection_prob,color = sex),size = 4,alpha = .8) +
+                geom_errorbar(aes(x= age,ymin=lower, ymax=upper,color = sex), width=.3)+
+                facet_nested_wrap(~sex + study_area,nrow = 2)+
+                theme_bw()+
+                ylab("Incidence")+
+                xlab("Age Class")+
+                ylim(0,1)+
+                scale_color_manual("Age",values=pillement_pal)+
+                theme(axis.text = element_text(size = 14),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.position = "n"
+                )
+out_plot_psi
+
+
+ggsave(paste0("figures/",modelid,"/incidence_psi","_",modelid,".png"),out_plot_psi,height = 7, width = 10)
+
+
+df_psi_f  <- df_psi %>% filter(sex == "Female")
+out_plot_psi_f <- ggplot(data=df_psi_f) +
+                geom_point(aes(x= age,y=infection_prob,color = sex),size = 4,alpha = .8) +
+                geom_errorbar(aes(x= age,ymin=lower, ymax=upper,color = sex), width=.3)+
+                facet_wrap(~study_area)+
+                theme_bw()+
+                ylab("Incidence")+
+                xlab("Age Class")+
+                ylim(0,0.3)+
+                scale_color_manual("Age",values=pillement_pal)+
+                theme(axis.text = element_text(size = 14),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.position = "n"
+                )
+out_plot_psi_f
+ggsave(paste0("figures/",modelid,"/incidence_psi_f","_",modelid,".png"),out_plot_psi_f,height = 7, width = 10)
+
+
+df_psi_m <- df_psi %>% filter(sex == "Male")
+df_psi_m$age <- as.factor(as.character(df_psi_m$age))
+levels(df_psi_m$age) <- c(as.character(1:5),"6+","Fawn")
+
+# df_psi_m$age <- c("Fawn",as.character(1:5),"6+")
+df_psi_m$age <- factor(df_psi_m$age,levels = c("Fawn",as.character(1:5),"6+"))
+out_plot_psi_m <- ggplot(data=df_psi_m) +
+                geom_point(aes(x= age,y=infection_prob,color = sex),size = 4,alpha = .8) +
+                geom_errorbar(aes(x= age,ymin=lower, ymax=upper,color = sex), width=.3)+
+                facet_wrap(~study_area)+
+                theme_bw()+
+                ylab("Incidence")+
+                xlab("Age Class")+
+                ylim(0,1)+
+                scale_color_manual("Age",values=pillement_pal)+
+                theme(axis.text = element_text(size = 14),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.position = "n"
+                )
+out_plot_psi_m
+ggsave(paste0("figures/",modelid,"/incidence_psi_m","_",modelid,".png"),out_plot_psi_m,height = 7, width = 10)
+
+####################################################################################
+###
+### Apparent prevalence over time
+###
+#######################################################################################
+
+df_prev <- cwd_df %>%
+              filter(kill_year>2016)%>%
+              group_by(age, sex, ew,kill_year) %>%
+              summarise(n_cases = n(), .groups = 'drop',
+              n_pos = sum(teststatus==1),
+              prevalence = sum(teststatus==1)/n()) %>% 
+              filter(prevalence !=1)
+
+df_prev$kill_year[df_prev$kill_year==2022] <- 2021
+
+df_prev$sex <- as.factor(df_prev$sex)
+levels(df_prev$sex) <- c("Female","Male")
+df_prev$sex <- factor(df_prev$sex,levels = c("Female","Male"))
+
+df_prev$ew <- as.factor(df_prev$ew)
+levels(df_prev$ew) <- c("East","West")
+
+prev_plot  <- ggplot(df_prev,aes(fill=age,y=prevalence,x=kill_year))+
+  geom_bar(position="dodge",stat="identity")+
+  scale_fill_manual("Age Class",values=met.brewer("Veronese",7),labels=c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5-8.5","9.5+"))+
+  theme_bw()+facet_nested_wrap(~sex+ew)+
+  ylab("Apparent Prevalence")+xlab("Year")+labs("Age Class")+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        title =element_text(size=12),
+        strip.text.x = element_text(size = 12),
+        legend.title = element_text(size=12))#+
+  # ggtitle("Core Area - Apparent Prevalence")
+prev_plot
+ggsave(paste0("figures/",modelid,"/prevalence","_",modelid,".png"),prev_plot,height = 6, width = 10)
+
+
+#############################################
+###
+### apparent prevalence w/o year 2017-2021
+###
+#############################################
+
+df_prev_noyear <- cwd_df %>%
+            #   filter(age == 3) %>%
+              filter(kill_year>2016)%>%
+              group_by(age,sex,ew) %>%
+              summarise(n_cases = n(), .groups = 'drop',
+              n_pos = sum(teststatus==1),
+              prevalence = sum(teststatus==1)/n())
+
+df_prev_noyear$sex <- as.factor(df_prev_noyear$sex)
+levels(df_prev_noyear$sex) <- c("Female","Male")
+df_prev_noyear$sex <- factor(df_prev_noyear$sex,levels = c("Male","Female"))
+
+df_prev_noyear$ew <- as.factor(df_prev_noyear$ew)
+levels(df_prev_noyear$ew) <- c("East","West")
+
+
+df_prev_noyear$age <- as.factor(df_prev_noyear$age)
+levels(df_prev_noyear$age) <-c("Fawn","1.5","9.5+","2.5","3.5","4.5-5.5","6.5-8.5") 
+df_prev_noyear$age <- factor(df_prev_noyear$age,levels = c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5-8.5","9.5+"))
+levels(df_prev_noyear$age)
+
+prev_plot_noyear  <- ggplot(df_prev_noyear,aes(y=prevalence,x=age,fill = age))+
+  geom_bar(position="dodge",stat="identity")+
+  scale_fill_manual("Age Class",values=met.brewer("Veronese",7))+
+  theme_bw()+facet_nested_wrap(~sex+ew)+
+  ylim(0,1)+
+  ylab("Apparent Prevalence")+xlab("Age Class")+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        title =element_text(size=12),
+        strip.text.x = element_text(size = 12),
+        legend.title = element_text(size=12))#+
+prev_plot_noyear
+
+ggsave(paste0("figures/",modelid,"/prevalence_noyear","_",modelid,".png"),prev_plot_noyear
+,height = 6, width = 10)
+
+  # ggtitle("Core Area - Apparent Prevalence")
+
+df_prev_noyear %>% filter(ew =="East" & sex == "Male") %>% 
+    write_csv(path = "results/male_east_prev.csv")
+
+df_prev_noyear %>% filter(ew =="East" & sex == "Female") %>% 
+    write_csv(path = "results/female_east_prev.csv")
+
+df_prev_noyear %>% filter(ew =="West" & sex == "Female") %>% 
+    write_csv(path = "results/female_west_prev.csv")
+
+df_prev_noyear %>% filter(ew =="West" & sex == "Male") %>% 
+    write_csv(path = "results/male_west_prev.csv")
+
+
+df_psi_f %>% filter(study_area =="East") %>% 
+    select(age,sex,study_area,infection_prob) %>% 
+    write_csv(path = paste0("results/",modelid,"/","female_east_psi.csv"))
+
+df_psi_f %>% filter(study_area =="West") %>% 
+    select(age,sex,study_area,infection_prob) %>% 
+    write_csv(path = paste0("results/",modelid,"/","female_west_psi.csv"))
+
+df_psi_m %>% filter(study_area =="East") %>% 
+    select(age,sex,study_area,infection_prob) %>% 
+    write_csv(path = paste0("results/",modelid,"/","male_east_psi.csv"))
+
+df_psi_m %>% filter(study_area =="West") %>% 
+    select(age,sex,study_area,infection_prob) %>% 
+    write_csv(path = paste0("results/",modelid,"/","male_west_psi.csv"))
+
+###########################################################
+############################################################
+###
+### Density plots of single parameters
+###
+############################################################
+############################################################
+
+# beta0_survival_sus <- do.call(c,out[,grep("beta0_survival_sus",rownames(fit_sum))])
+# beta0_survival_inf <- do.call(c,out[,grep("beta0_survival_inf",rownames(fit_sum))])
+# n_tot_iter <- length(beta0_survival_sus)
+
+# beta_male <- do.call(c,out[,grep("beta_male",rownames(fit_sum))])
+
+# space <- do.call(c,out[,"space[2]"])
+
+# p_nogun_f <- do.call(c,out[,grep("p_nogun_f",rownames(fit_sum))])
+# p_nogun_m <- do.call(c,out[,grep("p_nogun_m",rownames(fit_sum))])
+# p_gun_f <- do.call(c,out[,grep("p_gun_f",rownames(fit_sum))])
+# p_gun_m <- do.call(c,out[,grep("p_gun_m",rownames(fit_sum))])
+
+
+###########################################################
+###
+### Density plots of single parameters
+###
+############################################################
+
+df_space <- data.frame(space)
+space_plot <- ggplot(df_space)+
+    geom_density(aes(x=space),
+                 fill = pillement_pal[3],
+                 color = pillement_pal[3])+
+    theme_bw() +
+    ylab("Density")+xlab("Coefficient")+
+    ggtitle("Additive Effect of West Study Area on FOI") +
+    geom_vline(xintercept = 0,linetype =  "dashed")+
+    theme(axis.text=element_text(size=12),
+            axis.title=element_text(size=14),
+            title =element_text(size=12),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12))#+
+
+ggsave(paste0("figures/",modelid,"/space_coef","_",modelid,".png"),
+      space_plot,
+      height = 6,
+      width = 6)
+
+
+
+###########################################################
+###
+### Density plots of single parameters
+###
+############################################################
+
+df_sex <- data.frame(beta_male)
+sex_plot <- ggplot(df_sex)+
+    geom_density(aes(x=beta_male),
+                 fill = pillement_pal[4],
+                 color = pillement_pal[4])+
+    theme_bw() +
+    ylab("Density")+xlab("Coefficient")+
+    geom_vline(xintercept = 0,linetype =  "dashed")+
+    theme(axis.text=element_text(size=12),
+            axis.title=element_text(size=14),
+            title =element_text(size=12),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12))#+
+
+ggsave(paste0("figures/",modelid,"/sex_coef","_",modelid,".png"),
+      sex_plot,
+      height = 6,
+      width = 6)
+
+###########################################################
+###
+### beta0_survival_inf/sus
+###
+############################################################
+
+df_beta0_survival <- data.frame(beta0_survival_sus,beta0_survival_inf) %>% 
+                    pivot_longer(cols = everything())
+names(df_beta0_survival)[1] <- "cwd_status"
+df_beta0_survival$cwd_status <- as.factor(df_beta0_survival$cwd_status)
+levels(df_beta0_survival$cwd_status) <- c("Infected","Susceptible")
+df_beta0_survival$cwd_status <- factor(df_beta0_survival$cwd_status, levels = c("Susceptible","Infected"))
+max(df_beta0_survival$value)
+
+beta0_survival_plot <- ggplot(df_beta0_survival)+
+    geom_density(aes(x=value,fill = cwd_status,color = cwd_status), alpha = .8)+
+    theme_bw() +
+    ylab("Density")+xlab("Coefficient")+
+    ggtitle("Posterior Intercepts Log Hazard Mortality")+
+    labs(fill = "CWD Status",color = "CWD Status")+
+    scale_fill_manual(values = troy_pal[c(7, 2)])+
+    scale_color_manual(values = troy_pal[c(7, 2)])+
+    theme(axis.text=element_text(size=14),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12))#+
+
+beta0_survival_plot
+
+ggsave(paste0("figures/",modelid,"/beta0_survival_plot","_",modelid,".png"),
+      beta0_survival_plot,
+      height = 6,
+      width = 10)
+
+
+##############################################################
+###
+### conditional cause-specific probability of hunter harvest
+###
+##############################################################
+
+
+p_nogun_f <- do.call(c,out[,grep("p_nogun_f",rownames(fit_sum))])
+p_nogun_m <- do.call(c,out[,grep("p_nogun_m",rownames(fit_sum))])
+p_gun_f <- do.call(c,out[,grep("p_gun_f",rownames(fit_sum))])
+p_gun_m <- do.call(c,out[,grep("p_gun_m",rownames(fit_sum))])
+
+df_nogun <- data.frame(p_nogun_f,p_nogun_m) %>% 
+                    pivot_longer(cols = everything())
+names(df_nogun)[1] <- "sex"
+df_nogun$sex <- as.factor(df_nogun$sex)
+levels(df_nogun$sex) <- c("Female","Male")
+df_nogun$harvest_type <- "non-gun"
+
+df_gun <- data.frame(p_gun_f,p_gun_m) %>% 
+                    pivot_longer(cols = everything())
+names(df_gun)[1] <- "sex"
+df_gun$sex <- as.factor(df_gun$sex)
+levels(df_gun$sex) <- c("Female","Male")
+df_gun$harvest_type <- "9-day-gun"
+
+df_harv_prob <- rbind(df_nogun,df_gun)
+
+
+beta_p_harv <- ggplot(df_harv_prob)+
+    geom_density(aes(x=value,fill = sex,color = sex), alpha = .8)+
+    theme_bw() +
+    facet_wrap(~harvest_type)+
+    ylab("Density")+xlab("Conditional Probability of Harvest")+
+    labs(fill = "Sex",color = "Sex")+
+    scale_fill_manual(values = troy_pal[c(7, 2)])+
+    scale_color_manual(values = troy_pal[c(7, 2)])+
+    theme(axis.text=element_text(size=12),
+            axis.title=element_text(size=14),
+            title =element_text(size=12),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12))#+
+
+beta_p_harv
+
+ggsave(paste0("figures/",modelid,"/beta_p_harv","_",modelid,".png"),
+      beta_p_harv,
+      height = 6,
+      width = 10)
+
+
+
+round(fit_sum[grep("p_",rownames(fit_sum)),],2)
+
+
+data.frame(probability = c("p_gun_f",
+"p_gun_m",
+"p_nogun_f",
+"p_nogun_m"),
+    round(fit_sum[grep("p_",rownames(fit_sum)),c(1,4,5)],2)
+) %>% write_csv(path = paste0("results/",modelid,"/","beta_p_harv.csv"))
+
+####################################################################################
+###
+### Annual probability of surviving hunter harvest
+### gun and non-gun
+###
+####################################################################################
+
+source("calc_surv_harv_post.R")
+
+n_iter <- length(beta0_survival_sus)
+
+s_hunt_sus <- Ccalc_surv_harv_post(
+        ### argument type declarations
+        nT_age = nT_age_surv,
+        nT_age_short_f = nT_age_short_f,
+        nT_age_short_m = nT_age_short_m,
+        nT_age_surv_aah_f = nT_age_surv_aah_f,
+        nT_age_surv_aah_m = nT_age_surv_aah_f,
+        nT_period = nT_period_collar,
+        yr_start_age = yr_start_age,
+        yr_start_pop = d_fit_season_pop$yr_start,
+        ng_start = d_fit_season$ng_start,
+        gun_start = d_fit_season$gun_start,
+        gun_end = d_fit_season$gun_end,
+        ng_end = d_fit_season$ng_end,
+        n_sex = n_sex,
+        n_year = n_year,
+        n_agef = n_agef,
+        n_agem = n_agem,
+        n_iter = n_iter,
+        beta0 = beta0_survival_sus,
+        beta_male = beta_male,
+        age_effect = age_effect_survival,
+        period_effect = period_effect_survival,
+        p_nogun_f = p_nogun_f,
+        p_nogun_m = p_nogun_m,
+        p_gun_f = p_gun_f,
+        p_gun_m = p_gun_m
+        ) 
+
+s_hunt_inf <- Ccalc_surv_harv_post(
+        ### argument type declarations
+        nT_age = nT_age_surv,
+        nT_age_short_f = nT_age_short_f,
+        nT_age_short_m = nT_age_short_m,
+        nT_age_surv_aah_f = nT_age_surv_aah_f,
+        nT_age_surv_aah_m = nT_age_surv_aah_f,
+        nT_period = nT_period_collar,
+        yr_start_age = yr_start_age,
+        yr_start_pop = d_fit_season_pop$yr_start,
+        ng_start = d_fit_season$ng_start,
+        gun_start = d_fit_season$gun_start,
+        gun_end = d_fit_season$gun_end,
+        ng_end = d_fit_season$ng_end,
+        n_sex = n_sex,
+        n_year = n_year,
+        n_agef = n_agef,
+        n_agem = n_agem,
+        n_iter = n_iter,
+        beta0 = beta0_survival_inf,
+        beta_male = beta_male,
+        age_effect = age_effect_survival,
+        period_effect = period_effect_survival,
+        p_nogun_f = p_nogun_f,
+        p_nogun_m = p_nogun_m,
+        p_gun_f = p_gun_f,
+        p_gun_m = p_gun_m
+        ) 
+
+
+dim(s_hunt_sus)
+
+s_hunt_sus_mn <- apply(s_hunt_sus,2:5,mean,na.rm=TRUE)
+s_hunt_sus_lower <- apply(s_hunt_sus,2:5,quantile,.025, na.rm=TRUE)
+s_hunt_sus_upper <- apply(s_hunt_sus,2:5,quantile,.975,na.rm=TRUE)
+
+s_hunt_inf_mn <- apply(s_hunt_inf,2:5,mean,na.rm=TRUE)
+s_hunt_inf_lower <- apply(s_hunt_inf,2:5,quantile,.025, na.rm=TRUE)
+s_hunt_inf_upper <- apply(s_hunt_inf,2:5,quantile,.975,na.rm=TRUE)
+
+s_hunt_sus_mn[1,1,,]#ng harvest
+s_hunt_sus_mn[1,2,,]
+
+s_hunt_sus_mn[2,1,,]#gun harvest
+
+##########################################################
+##########################################################
+###
+### Survival Probability of Gun Harvest
+###
+##########################################################
+##########################################################
+
+##########################################################
+### Susceptible Male harvest survival probability
+##########################################################
+
+df_s_hunt_sus <- data.frame(s_hunt_sus_mn[2,2,1:n_agem,])
+names(df_s_hunt_sus)=as.character(2017:2021)
+df_s_hunt_sus$age = 1:n_agem
+df_s_hunt_sus  <- df_s_hunt_sus %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus) = c("age","year","mn")
+
+df_s_hunt_sus_low <- data.frame(s_hunt_sus_lower[2,2,1:n_agem,])
+names(df_s_hunt_sus_low)=as.character(2017:2021)
+df_s_hunt_sus_low$age = 1:n_agem
+df_s_hunt_sus_low  <- df_s_hunt_sus_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus_low) = c("age","year","lower")
+
+df_s_hunt_sus_upp <- data.frame(s_hunt_sus_upper[2,2,1:n_agem,])
+names(df_s_hunt_sus_upp)=as.character(2017:2021)
+df_s_hunt_sus_upp$age = 1:n_agem
+df_s_hunt_sus_upp  <- df_s_hunt_sus_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus_upp) = c("age","year","upper")
+
+df_s_hunt_sus$lower <- df_s_hunt_sus_low$lower
+df_s_hunt_sus$upper <- df_s_hunt_sus_upp$upper
+df_s_hunt_sus$age <- as.factor(df_s_hunt_sus$age)
+df_s_sus_hunt_m <- df_s_hunt_sus
+df_s_sus_hunt_m$sex <- "Male"
+
+df_s_sus_hunt_m$year <- as.integer(df_s_sus_hunt_m$year)
+df_s_sus_hunt_m$age <- as.factor(df_s_sus_hunt_m$age)
+levels(df_s_sus_hunt_m$age) <- c("Fawn",1:5 + .5,"6.5+")
+
+plot_s_sus_hunt_m <- ggplot(df_s_sus_hunt_m) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_sus_hunt_m","_",modelid,".png"),
+        plot_s_sus_hunt_m,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_sus_hunt_m$year <- as.factor(df_s_sus_hunt_m$year)
+
+alt_s_sus_hunt_m <- ggplot(df_s_sus_hunt_m) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt_m","_",modelid,".png"),
+        alt_s_sus_hunt_m,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Susceptible Female Gun harvest survival probability
+##########################################################
+
+df_s_hunt_sus <- data.frame(s_hunt_sus_mn[2,1,1:n_agef,])
+names(df_s_hunt_sus)=as.character(2017:2021)
+df_s_hunt_sus$age = 1:n_agef
+df_s_hunt_sus  <- df_s_hunt_sus %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus) = c("age","year","mn")
+
+df_s_hunt_sus_low <- data.frame(s_hunt_sus_lower[2,1,1:n_agef,])
+names(df_s_hunt_sus_low)=as.character(2017:2021)
+df_s_hunt_sus_low$age = 1:n_agef
+df_s_hunt_sus_low  <- df_s_hunt_sus_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus_low) = c("age","year","lower")
+
+df_s_hunt_sus_upp <- data.frame(s_hunt_sus_upper[2,1,1:n_agef,])
+names(df_s_hunt_sus_upp)=as.character(2017:2021)
+df_s_hunt_sus_upp$age = 1:n_agef
+df_s_hunt_sus_upp  <- df_s_hunt_sus_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_sus_upp) = c("age","year","upper")
+
+df_s_hunt_sus$lower <- df_s_hunt_sus_low$lower
+df_s_hunt_sus$upper <- df_s_hunt_sus_upp$upper
+df_s_hunt_sus$age <- as.factor(df_s_hunt_sus$age)
+df_s_sus_hunt_f <- df_s_hunt_sus
+df_s_sus_hunt_f$sex <- "Female"
+
+df_s_sus_hunt_f$year <- as.integer(df_s_sus_hunt_f$year)
+df_s_sus_hunt_f$age <- as.factor(df_s_sus_hunt_f$age)
+levels(df_s_sus_hunt_f$age) <- c("Fawn",1:8 + .5,"9.5+")
+
+plot_s_sus_hunt_f <- ggplot(df_s_sus_hunt_f) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_sus_hunt_f","_",modelid,".png"),
+        plot_s_sus_hunt_f,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_sus_hunt_f$year <- as.factor(df_s_sus_hunt_f$year)
+
+alt_s_sus_hunt_f <- ggplot(df_s_sus_hunt_f) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt_f","_",modelid,".png"),
+        alt_s_sus_hunt_f,
+        height = 6,
+        width = 10)
+
+
+##################################################
+### Combined sexes
+##################################################
+df_s_sus_hunt_m$age <- as.character(df_s_sus_hunt_m$age)
+df_s_sus_hunt_f$age <- as.character(df_s_sus_hunt_f$age)
+df_s_sus_hunt <- rbind(df_s_sus_hunt_f,df_s_sus_hunt_m)
+df_s_sus_hunt$age[df_s_sus_hunt$age=="6.5+"] <- "6.5"
+df_s_sus_hunt$age <- as.factor(df_s_sus_hunt$age)
+df_s_sus_hunt$age <- factor(df_s_sus_hunt$age,levels = c("Fawn",1:8 + .5,"9.5+"))
+
+alt_s_sus_hunt <- ggplot(df_s_sus_hunt) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_line(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_nested_wrap(~sex + year, nrow = 2)+ 
+                     xlab("Age") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+alt_s_sus_hunt
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt","_",modelid,".png"),
+        alt_s_sus_hunt,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Infected Male Gun harvest survival probability
+##########################################################
+
+df_s_hunt_inf <- data.frame(s_hunt_inf_mn[2,2,1:n_agem,])
+names(df_s_hunt_inf)=as.character(2017:2021)
+df_s_hunt_inf$age = 1:n_agem
+df_s_hunt_inf  <- df_s_hunt_inf %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf) = c("age","year","mn")
+
+df_s_hunt_inf_low <- data.frame(s_hunt_inf_lower[2,2,1:n_agem,])
+names(df_s_hunt_inf_low)=as.character(2017:2021)
+df_s_hunt_inf_low$age = 1:n_agem
+df_s_hunt_inf_low  <- df_s_hunt_inf_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf_low) = c("age","year","lower")
+
+df_s_hunt_inf_upp <- data.frame(s_hunt_inf_upper[2,2,1:n_agem,])
+names(df_s_hunt_inf_upp)=as.character(2017:2021)
+df_s_hunt_inf_upp$age = 1:n_agem
+df_s_hunt_inf_upp  <- df_s_hunt_inf_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf_upp) = c("age","year","upper")
+
+df_s_hunt_inf$lower <- df_s_hunt_inf_low$lower
+df_s_hunt_inf$upper <- df_s_hunt_inf_upp$upper
+df_s_hunt_inf$age <- as.factor(df_s_hunt_inf$age)
+df_s_inf_hunt_m <- df_s_hunt_inf
+df_s_inf_hunt_m$sex <- "Male"
+
+df_s_inf_hunt_m$year <- as.integer(df_s_inf_hunt_m$year)
+df_s_inf_hunt_m$age <- as.factor(df_s_inf_hunt_m$age)
+levels(df_s_inf_hunt_m$age) <- c("Fawn",1:5 + .5,"6.5+")
+
+plot_s_inf_hunt_m <- ggplot(df_s_inf_hunt_m) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_inf_hunt_m","_",modelid,".png"),
+        plot_s_inf_hunt_m,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_inf_hunt_m$year <- as.factor(df_s_inf_hunt_m$year)
+
+alt_s_inf_hunt_m <- ggplot(df_s_inf_hunt_m) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt_m","_",modelid,".png"),
+        alt_s_inf_hunt_m,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Infected Female Gun harvest survival probability
+##########################################################
+
+df_s_hunt_inf <- data.frame(s_hunt_inf_mn[2,1,1:n_agef,])
+names(df_s_hunt_inf)=as.character(2017:2021)
+df_s_hunt_inf$age = 1:n_agef
+df_s_hunt_inf  <- df_s_hunt_inf %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf) = c("age","year","mn")
+
+df_s_hunt_inf_low <- data.frame(s_hunt_inf_lower[2,1,1:n_agef,])
+names(df_s_hunt_inf_low)=as.character(2017:2021)
+df_s_hunt_inf_low$age = 1:n_agef
+df_s_hunt_inf_low  <- df_s_hunt_inf_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf_low) = c("age","year","lower")
+
+df_s_hunt_inf_upp <- data.frame(s_hunt_inf_upper[2,1,1:n_agef,])
+names(df_s_hunt_inf_upp)=as.character(2017:2021)
+df_s_hunt_inf_upp$age = 1:n_agef
+df_s_hunt_inf_upp  <- df_s_hunt_inf_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_inf_upp) = c("age","year","upper")
+
+df_s_hunt_inf$lower <- df_s_hunt_inf_low$lower
+df_s_hunt_inf$upper <- df_s_hunt_inf_upp$upper
+df_s_hunt_inf$age <- as.factor(df_s_hunt_inf$age)
+df_s_inf_hunt_f <- df_s_hunt_inf
+df_s_inf_hunt_f$sex <- "Female"
+
+df_s_inf_hunt_f$year <- as.integer(df_s_inf_hunt_f$year)
+df_s_inf_hunt_f$age <- as.factor(df_s_inf_hunt_f$age)
+levels(df_s_inf_hunt_f$age) <- c("Fawn",1:8 + .5,"9.5+")
+
+plot_s_inf_hunt_f <- ggplot(df_s_inf_hunt_f) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_inf_hunt_f","_",modelid,".png"),
+        plot_s_inf_hunt_f,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_inf_hunt_f$year <- as.factor(df_s_inf_hunt_f$year)
+
+alt_s_inf_hunt_f <- ggplot(df_s_inf_hunt_f) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt_f","_",modelid,".png"),
+        alt_s_inf_hunt_f,
+        height = 6,
+        width = 10)
+
+
+##################################################
+### Combined sexes
+##################################################
+
+df_s_inf_hunt_m$age <- as.character(df_s_inf_hunt_m$age)
+df_s_inf_hunt_f$age <- as.character(df_s_inf_hunt_f$age)
+df_s_inf_hunt <- rbind(df_s_inf_hunt_f,df_s_inf_hunt_m)
+df_s_inf_hunt$age[df_s_inf_hunt$age=="6.5+"] <- "6.5"
+df_s_inf_hunt$age <- as.factor(df_s_inf_hunt$age)
+df_s_inf_hunt$age <- factor(df_s_inf_hunt$age,levels = c("Fawn",1:8 + .5,"9.5+"))
+
+alt_s_inf_hunt <- ggplot(df_s_inf_hunt) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_line(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_nested_wrap(~sex + year, nrow = 2)+ 
+                     xlab("Age") + ylab("Probability of Surviving Gun Harvest")+
+                     ggtitle("Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+alt_s_inf_hunt
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt","_",modelid,".png"),
+        alt_s_inf_hunt,
+        height = 6,
+        width = 10)
+
+
+
+
+###########################################################################
+##########################################################################
+###########################################################################
+###
+### non-gun + gun harvest survival
+###
+###########################################################################
+##########################################################################
+###########################################################################
+
+
+s_hunt_ng_sus_mn <- apply(s_hunt_sus,2:5,mean,na.rm=TRUE)
+s_hunt_ng_sus_lower <- apply(s_hunt_sus,2:5,quantile,.025, na.rm=TRUE)
+s_hunt_ng_sus_upper <- apply(s_hunt_sus,2:5,quantile,.975,na.rm=TRUE)
+
+s_hunt_ng_inf_mn <- apply(s_hunt_inf,2:5,mean,na.rm=TRUE)
+s_hunt_ng_inf_lower <- apply(s_hunt_inf,2:5,quantile,.025, na.rm=TRUE)
+s_hunt_ng_inf_upper <- apply(s_hunt_inf,2:5,quantile,.975,na.rm=TRUE)
+
+# s_hunt_sus_mn[1,1,,]#ng harvest
+# s_hunt_sus_mn[1,2,,]
+
+# s_hunt_sus_mn[2,1,,]#gun harvest
+
+##########################################################
+##########################################################
+###
+### Survival Probability of Non-gun + Gun Harvest
+###
+##########################################################
+##########################################################
+
+##########################################################
+### Susceptible Male harvest survival probability
+##########################################################
+
+df_s_hunt_ng_sus <- data.frame(s_hunt_ng_sus_mn[1,2,1:n_agem,])
+names(df_s_hunt_ng_sus)=as.character(2017:2021)
+df_s_hunt_ng_sus$age = 1:n_agem
+df_s_hunt_ng_sus  <- df_s_hunt_ng_sus %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus) = c("age","year","mn")
+
+df_s_hunt_ng_sus_low <- data.frame(s_hunt_ng_sus_lower[1,2,1:n_agem,])
+names(df_s_hunt_ng_sus_low)=as.character(2017:2021)
+df_s_hunt_ng_sus_low$age = 1:n_agem
+df_s_hunt_ng_sus_low  <- df_s_hunt_ng_sus_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus_low) = c("age","year","lower")
+
+df_s_hunt_ng_sus_upp <- data.frame(s_hunt_ng_sus_upper[1,2,1:n_agem,])
+names(df_s_hunt_ng_sus_upp)=as.character(2017:2021)
+df_s_hunt_ng_sus_upp$age = 1:n_agem
+df_s_hunt_ng_sus_upp  <- df_s_hunt_ng_sus_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus_upp) = c("age","year","upper")
+
+df_s_hunt_ng_sus$lower <- df_s_hunt_ng_sus_low$lower
+df_s_hunt_ng_sus$upper <- df_s_hunt_ng_sus_upp$upper
+df_s_hunt_ng_sus$age <- as.factor(df_s_hunt_ng_sus$age)
+df_s_sus_hunt_ng_m <- df_s_hunt_ng_sus
+df_s_sus_hunt_ng_m$sex <- "Male"
+
+df_s_sus_hunt_ng_m$year <- as.integer(df_s_sus_hunt_ng_m$year)
+df_s_sus_hunt_ng_m$age <- as.factor(df_s_sus_hunt_ng_m$age)
+levels(df_s_sus_hunt_ng_m$age) <- c("Fawn",1:5 + .5,"6.5+")
+
+plot_s_sus_hunt_ng_m <- ggplot(df_s_sus_hunt_ng_m) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_sus_hunt_ng_m","_",modelid,".png"),
+        plot_s_sus_hunt_ng_m,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_sus_hunt_ng_m$year <- as.factor(df_s_sus_hunt_ng_m$year)
+
+alt_s_sus_hunt_ng_m <- ggplot(df_s_sus_hunt_ng_m) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt_ng_m","_",modelid,".png"),
+        alt_s_sus_hunt_ng_m,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Susceptible Female Non-Gun + Gun  survival probability
+##########################################################
+
+df_s_hunt_ng_sus <- data.frame(s_hunt_ng_sus_mn[1,1,1:n_agef,])
+names(df_s_hunt_ng_sus)=as.character(2017:2021)
+df_s_hunt_ng_sus$age = 1:n_agef
+df_s_hunt_ng_sus  <- df_s_hunt_ng_sus %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus) = c("age","year","mn")
+
+df_s_hunt_ng_sus_low <- data.frame(s_hunt_ng_sus_lower[1,1,1:n_agef,])
+names(df_s_hunt_ng_sus_low)=as.character(2017:2021)
+df_s_hunt_ng_sus_low$age = 1:n_agef
+df_s_hunt_ng_sus_low  <- df_s_hunt_ng_sus_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus_low) = c("age","year","lower")
+
+df_s_hunt_ng_sus_upp <- data.frame(s_hunt_ng_sus_upper[1,1,1:n_agef,])
+names(df_s_hunt_ng_sus_upp)=as.character(2017:2021)
+df_s_hunt_ng_sus_upp$age = 1:n_agef
+df_s_hunt_ng_sus_upp  <- df_s_hunt_ng_sus_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_sus_upp) = c("age","year","upper")
+
+df_s_hunt_ng_sus$lower <- df_s_hunt_ng_sus_low$lower
+df_s_hunt_ng_sus$upper <- df_s_hunt_ng_sus_upp$upper
+df_s_hunt_ng_sus$age <- as.factor(df_s_hunt_ng_sus$age)
+df_s_sus_hunt_ng_f <- df_s_hunt_ng_sus
+df_s_sus_hunt_ng_f$sex <- "Female"
+
+df_s_sus_hunt_ng_f$year <- as.integer(df_s_sus_hunt_ng_f$year)
+df_s_sus_hunt_ng_f$age <- as.factor(df_s_sus_hunt_ng_f$age)
+levels(df_s_sus_hunt_ng_f$age) <- c("Fawn",1:8 + .5,"9.5+")
+
+plot_s_sus_hunt_ng_f <- ggplot(df_s_sus_hunt_ng_f) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_sus_hunt_ng_f","_",modelid,".png"),
+        plot_s_sus_hunt_ng_f,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_sus_hunt_ng_f$year <- as.factor(df_s_sus_hunt_ng_f$year)
+
+alt_s_sus_hunt_ng_f <- ggplot(df_s_sus_hunt_ng_f) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt_ng_f","_",modelid,".png"),
+        alt_s_sus_hunt_ng_f,
+        height = 6,
+        width = 10)
+
+
+##################################################
+### Combined sexes
+##################################################
+df_s_sus_hunt_ng_m$age <- as.character(df_s_sus_hunt_ng_m$age)
+df_s_sus_hunt_ng_f$age <- as.character(df_s_sus_hunt_ng_f$age)
+df_s_sus_hunt_ng <- rbind(df_s_sus_hunt_ng_f,df_s_sus_hunt_ng_m)
+df_s_sus_hunt_ng$age[df_s_sus_hunt_ng$age=="6.5+"] <- "6.5"
+df_s_sus_hunt_ng$age <- as.factor(df_s_sus_hunt_ng$age)
+df_s_sus_hunt_ng$age <- factor(df_s_sus_hunt_ng$age,levels = c("Fawn",1:8 + .5,"9.5+"))
+
+alt_s_sus_hunt_ng <- ggplot(df_s_sus_hunt_ng) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_line(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_nested_wrap(~sex + year, nrow = 2)+ 
+                     xlab("Age") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+alt_s_sus_hunt_ng
+ggsave(paste0("figures/",modelid,"/alt_s_sus_hunt_ng","_",modelid,".png"),
+        alt_s_sus_hunt_ng,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Infected Male Non-Gun + Gun harvest survival probability
+##########################################################
+
+df_s_hunt_ng_inf <- data.frame(s_hunt_ng_inf_mn[1,2,1:n_agem,])
+names(df_s_hunt_ng_inf)=as.character(2017:2021)
+df_s_hunt_ng_inf$age = 1:n_agem
+df_s_hunt_ng_inf  <- df_s_hunt_ng_inf %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf) = c("age","year","mn")
+
+df_s_hunt_ng_inf_low <- data.frame(s_hunt_ng_inf_lower[1,2,1:n_agem,])
+names(df_s_hunt_ng_inf_low)=as.character(2017:2021)
+df_s_hunt_ng_inf_low$age = 1:n_agem
+df_s_hunt_ng_inf_low  <- df_s_hunt_ng_inf_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf_low) = c("age","year","lower")
+
+df_s_hunt_ng_inf_upp <- data.frame(s_hunt_ng_inf_upper[1,2,1:n_agem,])
+names(df_s_hunt_ng_inf_upp)=as.character(2017:2021)
+df_s_hunt_ng_inf_upp$age = 1:n_agem
+df_s_hunt_ng_inf_upp  <- df_s_hunt_ng_inf_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf_upp) = c("age","year","upper")
+
+df_s_hunt_ng_inf$lower <- df_s_hunt_ng_inf_low$lower
+df_s_hunt_ng_inf$upper <- df_s_hunt_ng_inf_upp$upper
+df_s_hunt_ng_inf$age <- as.factor(df_s_hunt_ng_inf$age)
+df_s_inf_hunt_ng_m <- df_s_hunt_ng_inf
+df_s_inf_hunt_ng_m$sex <- "Male"
+
+df_s_inf_hunt_ng_m$year <- as.integer(df_s_inf_hunt_ng_m$year)
+df_s_inf_hunt_ng_m$age <- as.factor(df_s_inf_hunt_ng_m$age)
+levels(df_s_inf_hunt_ng_m$age) <- c("Fawn",1:5 + .5,"6.5+")
+
+plot_s_inf_hunt_ng_m <- ggplot(df_s_inf_hunt_ng_m) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_inf_hunt_ng_m","_",modelid,".png"),
+        plot_s_inf_hunt_ng_m,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_inf_hunt_ng_m$year <- as.factor(df_s_inf_hunt_ng_m$year)
+
+alt_s_inf_hunt_ng_m <- ggplot(df_s_inf_hunt_ng_m) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt_ng_m","_",modelid,".png"),
+        alt_s_inf_hunt_ng_m,
+        height = 6,
+        width = 10)
+
+
+#########################################################
+### Infected Female Non-Gun + Gun harvest survival probability
+##########################################################
+
+df_s_hunt_ng_inf <- data.frame(s_hunt_ng_inf_mn[1,1,1:n_agef,])
+names(df_s_hunt_ng_inf)=as.character(2017:2021)
+df_s_hunt_ng_inf$age = 1:n_agef
+df_s_hunt_ng_inf  <- df_s_hunt_ng_inf %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf) = c("age","year","mn")
+
+df_s_hunt_ng_inf_low <- data.frame(s_hunt_ng_inf_lower[1,1,1:n_agef,])
+names(df_s_hunt_ng_inf_low)=as.character(2017:2021)
+df_s_hunt_ng_inf_low$age = 1:n_agef
+df_s_hunt_ng_inf_low  <- df_s_hunt_ng_inf_low %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf_low) = c("age","year","lower")
+
+df_s_hunt_ng_inf_upp <- data.frame(s_hunt_ng_inf_upper[1,1,1:n_agef,])
+names(df_s_hunt_ng_inf_upp)=as.character(2017:2021)
+df_s_hunt_ng_inf_upp$age = 1:n_agef
+df_s_hunt_ng_inf_upp  <- df_s_hunt_ng_inf_upp %>% pivot_longer(cols = as.character(2017:2021))
+names(df_s_hunt_ng_inf_upp) = c("age","year","upper")
+
+df_s_hunt_ng_inf$lower <- df_s_hunt_ng_inf_low$lower
+df_s_hunt_ng_inf$upper <- df_s_hunt_ng_inf_upp$upper
+df_s_hunt_ng_inf$age <- as.factor(df_s_hunt_ng_inf$age)
+df_s_inf_hunt_ng_f <- df_s_hunt_ng_inf
+df_s_inf_hunt_ng_f$sex <- "Female"
+
+df_s_inf_hunt_ng_f$year <- as.integer(df_s_inf_hunt_ng_f$year)
+df_s_inf_hunt_ng_f$age <- as.factor(df_s_inf_hunt_ng_f$age)
+levels(df_s_inf_hunt_ng_f$age) <- c("Fawn",1:8 + .5,"9.5+")
+
+plot_s_inf_hunt_ng_f <- ggplot(df_s_inf_hunt_ng_f) + geom_point(aes(x = year,y=mn,color = age),size = 4) +
+                     geom_errorbar(aes(x = year,ymin=lower, ymax=upper,color = age), width=.3) +
+                     scale_color_manual(values = renoir_pal,label = "Age") +
+                     facet_wrap(~age, nrow = 2)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                theme_bw()+   
+                theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/plot_s_inf_hunt_ng_f","_",modelid,".png"),
+        plot_s_inf_hunt_ng_f,
+        height = 6,
+        width = 10)
+
+##################################################
+### alternative
+##################################################
+
+df_s_inf_hunt_ng_f$year <- as.factor(df_s_inf_hunt_ng_f$year)
+
+alt_s_inf_hunt_ng_f <- ggplot(df_s_inf_hunt_ng_f) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_wrap(~year, nrow = 1)+ 
+                     xlab("Year") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt_ng_f","_",modelid,".png"),
+        alt_s_inf_hunt_ng_f,
+        height = 6,
+        width = 10)
+
+
+##################################################
+### Combined sexes
+##################################################
+
+df_s_inf_hunt_ng_m$age <- as.character(df_s_inf_hunt_ng_m$age)
+df_s_inf_hunt_ng_f$age <- as.character(df_s_inf_hunt_ng_f$age)
+df_s_inf_hunt_ng <- rbind(df_s_inf_hunt_ng_f,df_s_inf_hunt_ng_m)
+df_s_inf_hunt_ng$age[df_s_inf_hunt_ng$age=="6.5+"] <- "6.5"
+df_s_inf_hunt_ng$age <- as.factor(df_s_inf_hunt_ng$age)
+df_s_inf_hunt_ng$age <- factor(df_s_inf_hunt_ng$age,levels = c("Fawn",1:8 + .5,"9.5+"))
+
+alt_s_inf_hunt_ng <- ggplot(df_s_inf_hunt_ng) +
+                     geom_point(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_line(aes(x = age,y=mn,color = year),size = 4) +
+                     geom_errorbar(aes(x = age,ymin=lower, ymax=upper,color = year), width=.3) +
+                     scale_color_manual(values = renoir_pal) +
+                     facet_nested_wrap(~sex + year, nrow = 2)+ 
+                     xlab("Age") + ylab("Probability of Surviving Non-Gun + Gun Harvest")+
+                     ggtitle("Non-Gun + Gun Harvest Survival Probability") +
+                     theme_bw()+   
+                    theme(axis.text=element_text(size=11),
+            axis.title=element_text(size=16),
+            title =element_text(size=18),
+            strip.text.x = element_text(size = 12),
+            legend.title = element_text(size=12),
+            axis.text.x = element_text(angle = 45,hjust = 1),
+            legend.position = "n")
+alt_s_inf_hunt_ng
+ggsave(paste0("figures/",modelid,"/alt_s_inf_hunt_ng","_",modelid,".png"),
+        alt_s_inf_hunt_ng,
+        height = 6,
+        width = 10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################
+###
+### this code is for calculating annual survival parameters 
+### outside the mcmc model fit if these were 
+###
+#########################################################
+# sn_sus_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
+
+#   ##sex,age,year
+# for (k in 1:tot_iter) {
+#   sn_sus_samples[k,,,] <- calc_surv_aah(
+#       nT_age = nT_age_surv,
+#       nT_period = nT_period_collar,
+#       nT_age_short_f = nT_age_short_f,
+#       nT_age_short_m = nT_age_short_m,
+#       nT_age_surv_aah_f = nT_age_surv_aah_f,
+#       nT_age_surv_aah_m = nT_age_surv_aah_m,
+#       beta0 = beta0_survival_sus[k],
+#       beta_male = beta_male[k],
+#       age_effect = age_effect_survival[k,],
+#       period_effect = period_effect_survival[k,],
+# 	    yr_start_age = yr_start_age,
+#       yr_start_pop = d_fit_season_pop$yr_start,
+#       n_year = n_year,
+#       n_agef = n_agef,
+#       n_agem = n_agem)
+# }
+# save(sn_sus_samples, file = "results/sn_sus_samples_I.Rdata")
+# sn_sus_out <- apply(sn_sus_samples,2:4,mean,na.rm=TRUE)
+# save(sn_sus_out, file = "results/sn_sus_out_I.Rdata")
+# sn_sus_out[1,,]
+
+# sn_inf_samples <- array(NA,dim = c(tot_iter,n_sex,n_agef,n_year))
+#   ##sex,age,year
+# for (k in 1:tot_iter) {
+#   sn_inf_samples[k,,,] <- calc_surv_aah(
+#       nT_age = nT_age_surv,
+#       nT_period = nT_period_collar,
+#       nT_age_short_f = nT_age_short_f,
+#       nT_age_short_m = nT_age_short_m,
+#       nT_age_surv_aah_f = nT_age_surv_aah_f,
+#       nT_age_surv_aah_m = nT_age_surv_aah_m,
+#       beta0 = beta0_survival_inf[k],
+#       beta_male = beta_male[k],
+#       age_effect = age_effect_survival[k,],
+#       period_effect = period_effect_survival[k,],
+# 	    yr_start_age = yr_start_age,
+#       yr_start_pop = d_fit_season_pop$yr_start,
+#       n_year = n_year,
+#       n_agef = n_agef,
+#       n_agem = n_agem)
+# }
+# save(sn_inf_samples, file = "results/sn_inf_samples_I.Rdata")
+# sn_inf_out <- apply(sn_inf_samples,2:4,mean,na.rm=TRUE)
+# save(sn_inf_out, file = "results/sn_inf_out_I.Rdata")
+# sn_inf_out_sd <- apply(sn_inf_samples,2:4,sd,na.rm=TRUE)
+# sn_sus_out_sd <- apply(sn_sus_samples,2:4,sd,na.rm=TRUE)
+
+
+# # value <- c(sn_sus_out)
+# value <- c(sn_sus)
+# df_sn_sus_out <- data.frame(
+#   survival = c(sn_sus),
+#   survival_sd = c(sn_sus_out_sd),
+#   sex = rep(c("Female","Male"), length(value)/2),
+#   age = rep(1:10,each = 2,length(value)/20),
+#   year = rep(2017:2021, each = length(value)/5)
+# )
+# df_sn_sus_out$cwd_status <- "Susceptible"
+
+
+# value <- c(sn_inf)
+# df_sn_inf_out <- data.frame(
+#   survival=c(sn_inf),
+#   survival_sd = c(sn_inf_out_sd),
+#   sex = rep(c("Female","Male"),length(value)/2),
+#   age = rep(1:10,each = 2,length(value)/20),
+#   year= rep(2017:2021,each=length(value)/5)
+# )
+# df_sn_inf_out$cwd_status <- "Infected"
+
+# df_sn_out <- rbind(df_sn_sus_out,df_sn_inf_out)
+# df_sn_out$age <- as.factor(df_sn_out$age)
+# levels(df_sn_out$age) <- c("Fawn",as.character(1:8),"9+")
+# df_sn_sus_out$age <- as.factor(df_sn_sus_out$age)
+# levels(df_sn_sus_out$age) <- c("Fawn",as.character(1:8),"9+")
+# df_sn_inf_out$age <- as.factor(df_sn_inf_out$age)
+# levels(df_sn_inf_out$age) <- c("Fawn",as.character(1:8),"9+")
+
+# mypal <- met.brewer(name="Renoir", n=10, type="discrete")
+
+
+# out_plot_inf <- ggplot(data=df_sn_inf_out)+
+#                 geom_point(aes(x= year,y=survival,color=age),size = 4,alpha =.8)+
+#                 facet_wrap(~sex)+
+#                 theme_bw()+
+#                 ylab("Annual Survival Probability May 15-May14 the following year")+
+#                 xlab("Year")+
+#                 scale_color_manual("Age",values=mypal)+
+#                 theme(axis.text = element_text(size = 14),
+#                 axis.title = element_text(size = 16),
+#                 strip.text = element_text(size = 16),
+#                 legend.title = element_text(size = 16),
+#                 legend.text = element_text(size = 14))
+
+# out_plot_sus <- ggplot(data=df_sn_sus_out) +
+#                 geom_point(aes(x= year,y=survival,color = age),size = 4,alpha = .8) +
+#                 facet_wrap(~sex) +
+#                 theme_bw()+
+#                 ylab("Annual Survival Probability May 15-May14 the following year")+
+#                 xlab("Year")+
+#                 scale_color_manual("Age",values=mypal)+
+#                 theme(axis.text = element_text(size = 14),
+#                       axis.title = element_text(size = 16),
+#                       strip.text = element_text(size = 16),
+#                       legend.title = element_text(size = 16),
+#                       legend.text = element_text(size = 14)
+#                 )
+
+# ggsave(paste0("figures/",modelid,"/annual_survival_plot_sus","_",modelid,".png"),out_plot_sus)
+# ggsave(paste0("figures/",modelid,"/annual_survival_plot_inf","_",modelid,".png"),out_plot_inf)
+
+
+
+
 
 ############################################
 ### Probability of susceptibles surviving non-gun harvest
 ### Probability of susceptibles surviving gun harvest
 ############################################
 
-    mu_old_age_effect_f <- mean(age_effect[(nT_age_short_f + 1):nT_age])
-    mu_old_age_effect_m <- mean(age_effect[(nT_age_short_m + 1):nT_age])
+    # mu_old_age_effect_f <- mean(age_effect[(nT_age_short_f + 1):nT_age])
+    # mu_old_age_effect_m <- mean(age_effect[(nT_age_short_m + 1):nT_age])
 
-	############################################
-	# Calculate hazards
-	############################################
+	# ############################################
+	# # Calculate hazards
+	# ############################################
 
-    UCH <- nimArray(NA, c(2, nT_age_surv_aah_f, nT_period))
-    s_aah <- nimArray(NA, c(2, n_agef, n_year))
+    # UCH <- nimArray(NA, c(2, nT_age_surv_aah_f, nT_period))
+    # s_aah <- nimArray(NA, c(2, n_agef, n_year))
 
-    ### Females
-    for(j in 1:nT_period) {
-        for(i in 1:nT_age_short_f) {
-            UCH[1, i, j] <- exp(beta0 +
-                                age_effect[i] +
-                                period_effect[j])
-        }
-        for(i in (nT_age_short_f + 1):(nT_age_surv_aah_f)) {
-            UCH[1, i, j] <- exp(beta0 +
-                                mu_old_age_effect_f +
-                                period_effect[j])
-        }
-    }
+    # ### Females
+    # for(j in 1:nT_period) {
+    #     for(i in 1:nT_age_short_f) {
+    #         UCH[1, i, j] <- exp(beta0 +
+    #                             age_effect[i] +
+    #                             period_effect[j])
+    #     }
+    #     for(i in (nT_age_short_f + 1):(nT_age_surv_aah_f)) {
+    #         UCH[1, i, j] <- exp(beta0 +
+    #                             mu_old_age_effect_f +
+    #                             period_effect[j])
+    #     }
+    # }
 
-    ### Males
-    for(j in 1:nT_period) {
-        for(i in 1:nT_age_short_m) {
-            UCH[2, i, j] <- exp(beta0 +
-                                beta_male +
-                                age_effect[i] +
-                                period_effect[j])
-        }
-        for(i in (nT_age_short_m + 1):(nT_age_surv_aah_m)) {
-            UCH[2, i, j] <- exp(beta0 +
-                                beta_male +
-                                mu_old_age_effect_m +
-                                period_effect[j])
-        }
-    }
+    # ### Males
+    # for(j in 1:nT_period) {
+    #     for(i in 1:nT_age_short_m) {
+    #         UCH[2, i, j] <- exp(beta0 +
+    #                             beta_male +
+    #                             age_effect[i] +
+    #                             period_effect[j])
+    #     }
+    #     for(i in (nT_age_short_m + 1):(nT_age_surv_aah_m)) {
+    #         UCH[2, i, j] <- exp(beta0 +
+    #                             beta_male +
+    #                             mu_old_age_effect_m +
+    #                             period_effect[j])
+    #     }
+    # }
 
-    ############################################
-    # calculate survival from cummulative haz
-    ############################################
-    for (t in 1:n_year) {
-        for (a in 1:n_agef) {
-            s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
-                               yr_start_age[a]:(yr_start_age[a] + 51),
-                               yr_start_pop[t]:(yr_start_pop[t] + 51)])))
-        }
-        for(a in 1:n_agem) {
-            s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
-                               yr_start_age[a]:(yr_start_age[a] + 51),
-                               yr_start_pop[t]:(yr_start_pop[t] + 51)])))
-        }
-    }
+    # ############################################
+    # # calculate survival from cummulative haz
+    # ############################################
+    # for (t in 1:n_year) {
+    #     for (a in 1:n_agef) {
+    #         s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
+    #                            yr_start_age[a]:(yr_start_age[a] + 51),
+    #                            yr_start_pop[t]:(yr_start_pop[t] + 51)])))
+    #     }
+    #     for(a in 1:n_agem) {
+    #         s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
+    #                            yr_start_age[a]:(yr_start_age[a] + 51),
+    #                            yr_start_pop[t]:(yr_start_pop[t] + 51)])))
+    #     }
+    # }
 
 
 # Probability of infecteds surviving non-gun harvest

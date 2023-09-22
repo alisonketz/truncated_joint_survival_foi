@@ -118,8 +118,8 @@ source("14_calculations_trunc.R")
 ###########################################################
 
 # source("15_modelcode.R")
-# source("15_modelcode_K.R")
-source("15_modelcode_K_hh.R")
+source("15_modelcode_K.R")
+# source("15_modelcode_K_hh.R")
 
 ###########################################################
 ### Run model
