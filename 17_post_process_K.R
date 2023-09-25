@@ -413,7 +413,7 @@ save(mcmcout,file = paste0("results/",modelid,"/mcmcout_",modelid,".Rdata"))
 ##################################################
 ##################################################
 
-modelid <- "O"
+modelid <- "N"
 
 load(paste0("results/",modelid,"/mcmcout_",modelid,".Rdata"))
 
@@ -608,6 +608,26 @@ df_sn_inf_m <- df_sn_inf %>% filter(sex == "Male")
 df_sn_inf_m$age <- as.factor(as.character(df_sn_inf_m$age))
 levels(df_sn_inf_m$age) <- c(as.character(1:5),"6+")
  
+m_out_plot_inf_ci <- ggplot(data=df_sn_inf_m) +
+                geom_point(aes(x= year,y=survival,color = age),size = 3,alpha = .6) +
+                geom_errorbar(aes(x= year,ymin=lower, ymax=upper,color = age), width=.3)+
+                facet_wrap(~age, nrow  = 2) +
+                theme_bw()+
+                ylab("Annual Survival Probability")+
+                xlab("Year")+
+                ylim(0,.5)+
+                scale_color_manual("Age",values=renoir_pal)+
+                theme(axis.text = element_text(size = 12),
+                      axis.title = element_text(size = 16),
+                      strip.text = element_text(size = 16),
+                      legend.title = element_text(size = 16),
+                      legend.text = element_text(size = 14),
+                      axis.text.x = element_text(angle = 45,hjust = 1)
+                )
+m_out_plot_inf_ci
+
+ggsave(paste0("figures/",modelid,"/annual_survival_sn_inf_m","_",modelid,".png"),
+              m_out_plot_inf_ci,height = 6, width = 10.5)
 
 
 
@@ -970,6 +990,66 @@ df_psi_m %>% filter(study_area =="West") %>%
     select(age,sex,study_area,infection_prob) %>% 
     write_csv(path = paste0("results/",modelid,"/","male_west_psi.csv"))
 
+
+
+d_surv_nofawn <- d_surv %>% filter(left_age_e>30)
+names(d_surv_nofawn)
+
+head(df_cap)
+
+data.frame(sex="Combined",
+    prev_capture = sum(d_surv_nofawn$cwd_cap)/nrow(d_surv_nofawn),
+           prev_mort = sum(d_surv_nofawn$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn))%>% 
+    write_csv(path = paste0("results/prevalence_collars.csv"))
+
+
+d_surv_nofawn_f <- d_surv %>% filter(left_age_e>30) %>% filter(sex==0)
+data.frame(sex = "Female",
+    prev_capture = sum(d_surv_nofawn_f$cwd_cap)/nrow(d_surv_nofawn_f),
+           prev_mort = sum(d_surv_nofawn_f$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn_f))%>% 
+    write_csv(path = paste0("results/prevalence_collars_f.csv"))
+
+d_surv_nofawn_m <- d_surv %>% filter(left_age_e>30) %>% filter(sex==1)
+
+data.frame(sex = "Male",
+    prev_capture = sum(d_surv_nofawn_m$cwd_cap)/nrow(d_surv_nofawn_m),
+           prev_mort = sum(d_surv_nofawn_m$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn_m))%>% 
+    write_csv(path = paste0("results/prevalence_collars_m.csv"))    
+
+
+rbind(data.frame(sex="Combined",
+    prev_capture = sum(d_surv_nofawn$cwd_cap)/nrow(d_surv_nofawn),
+           prev_mort = sum(d_surv_nofawn$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn)),
+data.frame(sex = "Female",
+    prev_capture = sum(d_surv_nofawn_f$cwd_cap)/nrow(d_surv_nofawn_f),
+           prev_mort = sum(d_surv_nofawn_f$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn_f)),
+data.frame(sex = "Male",
+    prev_capture = sum(d_surv_nofawn_m$cwd_cap)/nrow(d_surv_nofawn_m),
+           prev_mort = sum(d_surv_nofawn_m$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn_m)))%>% 
+    write_csv(path = paste0("results/prevalence_collars_all.csv"))    
+
+
+
+###prime age males
+table(d_surv_nofawn_m$right_age_r)
+
+plot(d_surv_nofawn_m$left_age_e)
+
+
+ prev_capture = sum(d_surv_nofawn_m$cwd_cap)/nrow(d_surv_nofawn_m),
+           prev_mort = sum(d_surv_nofawn_m$cwd_mort,na.rm=TRUE)/nrow(d_surv_nofawn_m))
+
+
+d_surv_hh <- d_surv_nofawn %>% filter(p4==1)
+
+prev_mort_hh = sum(d_surv_hh$cwd_mort,na.rm=TRUE)/nrow(d_surv_hh)
+prev_mort_hh_ = sum(d_surv_hh$cwd_mort,na.rm=TRUE)/nrow(d_surv_hh)
+
+d_surv_hh_f <- d_surv_nofawn %>% filter(p4==1) %>% filter(sex==0)
+d_surv_hh_f <- d_surv_nofawn %>% filter(p4==1) %>% filter(sex==0)
+
+
+
 ###########################################################
 ############################################################
 ###
@@ -978,18 +1058,18 @@ df_psi_m %>% filter(study_area =="West") %>%
 ############################################################
 ############################################################
 
-# beta0_survival_sus <- do.call(c,out[,grep("beta0_survival_sus",rownames(fit_sum))])
-# beta0_survival_inf <- do.call(c,out[,grep("beta0_survival_inf",rownames(fit_sum))])
-# n_tot_iter <- length(beta0_survival_sus)
+beta0_survival_sus <- do.call(c,out[,grep("beta0_survival_sus",rownames(fit_sum))])
+beta0_survival_inf <- do.call(c,out[,grep("beta0_survival_inf",rownames(fit_sum))])
+n_tot_iter <- length(beta0_survival_sus)
 
-# beta_male <- do.call(c,out[,grep("beta_male",rownames(fit_sum))])
+beta_male <- do.call(c,out[,grep("beta_male",rownames(fit_sum))])
 
-# space <- do.call(c,out[,"space[2]"])
+space <- do.call(c,out[,"space[2]"])
 
-# p_nogun_f <- do.call(c,out[,grep("p_nogun_f",rownames(fit_sum))])
-# p_nogun_m <- do.call(c,out[,grep("p_nogun_m",rownames(fit_sum))])
-# p_gun_f <- do.call(c,out[,grep("p_gun_f",rownames(fit_sum))])
-# p_gun_m <- do.call(c,out[,grep("p_gun_m",rownames(fit_sum))])
+p_nogun_f <- do.call(c,out[,grep("p_nogun_f",rownames(fit_sum))])
+p_nogun_m <- do.call(c,out[,grep("p_nogun_m",rownames(fit_sum))])
+p_gun_f <- do.call(c,out[,grep("p_gun_f",rownames(fit_sum))])
+p_gun_m <- do.call(c,out[,grep("p_gun_m",rownames(fit_sum))])
 
 
 ###########################################################
@@ -1079,6 +1159,9 @@ ggsave(paste0("figures/",modelid,"/beta0_survival_plot","_",modelid,".png"),
       beta0_survival_plot,
       height = 6,
       width = 10)
+
+fit_sum[grep("beta0_survival_",rownames(fit_sum)),]
+write.csv(fit_sum[grep("beta0_survival_",rownames(fit_sum)),],file = paste0("results/",modelid,"/beta0_survival_summary.csv"))
 
 
 ##############################################################

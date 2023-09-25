@@ -149,33 +149,33 @@ calc_surv_harv_post <- nimble::nimbleFunction(
 Ccalc_surv_harv_post <- compileNimble(calc_surv_harv_post)
 
 
-n_iter <- length(beta0_survival_sus)
+# n_iter <- length(beta0_survival_sus)
 
-s_hunt_sus <- Ccalc_surv_harv_post(
-        ### argument type declarations
-        nT_age = nT_age_surv,
-        nT_age_short_f = nT_age_short_f,
-        nT_age_short_m = nT_age_short_m,
-        nT_age_surv_aah_f = nT_age_surv_aah_f,
-        nT_age_surv_aah_m = nT_age_surv_aah_f,
-        nT_period = nT_period_collar,
-        yr_start_age = yr_start_age,
-        yr_start_pop = d_fit_season_pop$yr_start,
-        ng_start = d_fit_season$ng_start,
-        gun_start = d_fit_season$gun_start,
-        gun_end = d_fit_season$gun_end,
-        ng_end = d_fit_season$ng_end,
-        n_sex = n_sex,
-        n_year = n_year,
-        n_agef = n_agef,
-        n_agem = n_agem,
-        n_iter = n_iter,
-        beta0 = beta0_survival_sus,
-        beta_male = beta_male,
-        age_effect = age_effect_survival,
-        period_effect = period_effect_survival,
-        p_nogun_f = p_nogun_f,
-        p_nogun_m = p_nogun_m,
-        p_gun_f = p_gun_f,
-        p_gun_m = p_gun_m
-        ) 
+# s_hunt_sus <- Ccalc_surv_harv_post(
+#         ### argument type declarations
+#         nT_age = nT_age_surv,
+#         nT_age_short_f = nT_age_short_f,
+#         nT_age_short_m = nT_age_short_m,
+#         nT_age_surv_aah_f = nT_age_surv_aah_f,
+#         nT_age_surv_aah_m = nT_age_surv_aah_f,
+#         nT_period = nT_period_collar,
+#         yr_start_age = yr_start_age,
+#         yr_start_pop = d_fit_season_pop$yr_start,
+#         ng_start = d_fit_season$ng_start,
+#         gun_start = d_fit_season$gun_start,
+#         gun_end = d_fit_season$gun_end,
+#         ng_end = d_fit_season$ng_end,
+#         n_sex = n_sex,
+#         n_year = n_year,
+#         n_agef = n_agef,
+#         n_agem = n_agem,
+#         n_iter = n_iter,
+#         beta0 = beta0_survival_sus,
+#         beta_male = beta_male,
+#         age_effect = age_effect_survival,
+#         period_effect = period_effect_survival,
+#         p_nogun_f = p_nogun_f,
+#         p_nogun_m = p_nogun_m,
+#         p_gun_f = p_gun_f,
+#         p_gun_m = p_gun_m
+#         ) 
