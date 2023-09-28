@@ -132,8 +132,14 @@ temp2 <- cwd_df %>%
               group_by(age, sex, ew) %>%
               summarise(n_cases_pos = n(), .groups = 'drop')
 
-temp2 <- rbind(temp2,c(0,1,1,0))
-temp2 <- rbind(temp2,c(9,1,1,0))
+nrow(temp2)
+temp1%>%filter(temp1$age==0)
+temp2%>%filter(temp2$age==0)
+temp1%>%filter(temp1$age==9)
+temp2%>%filter(temp2$age==9)
+
+temp2 <- rbind(temp2,c(0,0,2,0))
+temp2 <- rbind(temp2,c(9,0,2,0))
 
 temp1 <- temp1 %>% arrange(age,sex,ew)
 temp2 <- temp2 %>% arrange(age,sex,ew)

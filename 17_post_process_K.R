@@ -403,6 +403,7 @@ ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effec
 ###################################################
 
 save(mcmcout,file = paste0("results/",modelid,"/mcmcout_",modelid,".Rdata"))
+save(fit_sum,file = paste0("results/",modelid,"/fit_sum_",modelid,".Rdata"))
 
 ##################################################
 ##################################################
@@ -741,7 +742,8 @@ f_age_foi_plot=ggplot(data=df_age_foi_f)+
                 ymin=foi_lower,
                 ymax=foi_upper),
             fill=pillement_pal[2],alpha=.8)+
-  geom_step(aes(x=agegroups,y=foi_mn),size=1.2)+
+  geom_step(aes(x=agegroups,y=foi_mn),size=1.2) + 
+  ylim(-9.5,-3)+
   ggtitle("Female Force of Infection")+
   theme_bw()+xlab("Age Class")+ylab("Age Effects Weekly Conversion Hazard (Log)")+
   scale_x_continuous(breaks = (1:n_ageclassf)-.5,labels =c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5-8.5","9.5+"))+
@@ -764,6 +766,7 @@ m_age_foi_plot <- ggplot(data=df_age_foi_m)+
                 ymax=foi_upper),
             fill=pillement_pal[4],alpha=.8)+
   geom_step(aes(x=agegroups,y=foi_mn),size=1.2)+
+  ylim(-9.5,-3)+
   ggtitle("Male Force of Infection")+
   theme_bw()+xlab("Age Class")+ylab("Age Effects Weekly Conversion Hazard (Log)")+
   scale_x_continuous(breaks = (1:n_ageclassm)-.5,labels =c("Fawn","1.5","2.5","3.5","4.5-5.5","6.5+"))+

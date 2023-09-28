@@ -116,13 +116,13 @@ calc_surv_harv_post <- nimble::nimbleFunction(
         for (t in 1:n_year) {
             for (a in 1:n_agef) {
                 s_hunt[k, 1, 1, a, t] <- exp(-sum(diag(UCH_hunt[1,
-                                    (yr_start_age[a] + length(yr_start_pop[t]:(ng_start[t]-1))):(yr_start_age[a] + length(ng_start[t]:ng_end[t])+ length(yr_start_pop[t]:(ng_start[t]-1))),
+                                    (yr_start_age[a] + length(yr_start_pop[t]:(ng_start[t]-1))):(yr_start_age[a] + length(ng_start[t]:ng_end[t]) - 1 + length(yr_start_pop[t]:(ng_start[t]-1))),
                                     ng_start[t]:ng_end[t]])))
             }
             for(a in 1:n_agem) {
                 s_hunt[k, 1, 2, a, t] <- exp(-sum(diag(UCH_hunt[2,
-                                   (yr_start_age[a] + length(yr_start_pop[t]:(ng_start[t]-1))):(yr_start_age[a] + length(ng_start[t]:ng_end[t])+ length(yr_start_pop[t]:(ng_start[t]-1))),
-                                    yr_start_pop[t]:ng_end[t]])))
+                                   (yr_start_age[a] + length(yr_start_pop[t]:(ng_start[t]-1))):(yr_start_age[a] + length(ng_start[t]:ng_end[t]) - 1 + length(yr_start_pop[t]:(ng_start[t]-1))),
+                                    ng_start[t]:ng_end[t]])))
             }
             for (a in 1:n_agef) {
                 s_hunt[k, 2, 1, a, t] <- exp(-sum(diag(UCH_hunt[1,
